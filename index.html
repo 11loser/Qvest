@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дело №31-10: Последняя свеча</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #0a0a0a;
+            color: #d4c5a9;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 0, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 140, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen { display: none; animation: fadeIn 0.8s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title-screen {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        .title-video-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .title-video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.45) saturate(0.7);
+        }
+
+        .title-video-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(10,5,0,0.9) 100%);
+        }
+
+        .title-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 700px;
+        }
+
+        .title-screen h1 {
+            font-size: 3em;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.6), 0 4px 12px rgba(0,0,0,0.9);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .title-screen .subtitle {
+            font-size: 1.2em;
+            color: #d4c5a9;
+            margin-bottom: 30px;
+            font-style: italic;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .title-screen .case-number {
+            font-size: 0.9em;
+            color: #d4c5a9;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .title-text {
+            color: #d4c5a9;
+            max-width: 540px;
+            margin: 20px auto;
+            line-height: 1.7;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.95);
+            font-size: 1.05em;
+        }
+
+        .title-audio-player {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 22px;
+            background: rgba(20, 15, 10, 0.85);
+            border: 1px solid #3a2a1a;
+            border-radius: 30px;
+            margin: 20px 0 10px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .title-audio-player button {
+            background: none;
+            border: 1px solid #8b7355;
+            color: #8b7355;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .title-audio-player button:hover {
+            background: rgba(139, 115, 85, 0.2);
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+
+        .title-audio-player .audio-label {
+            color: #8b7355;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .title-audio-player.playing {
+            border-color: #ff6b35;
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .title-audio-player.playing button {
+            border-color: #ff6b35;
+            color: #ff6b35;
+            animation: pulsePlay 1s infinite;
+        }
+
+        .title-audio-player.playing .audio-label {
+            color: #ff6b35;
+        }
+
+        @keyframes pulsePlay {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(255, 107, 53, 0); }
+        }
+
+        .narrator-screen {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        .narrator-video-wrap {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .narrator-video-wrap video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5) saturate(0.75);
+        }
+
+        .narrator-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%),
+                linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(10,5,0,0.85) 100%);
+        }
+
+        .narrator-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 700px;
+        }
+
+        .narrator-content h2 {
+            font-size: 2em;
+            color: #ff6b35;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.6), 0 4px 12px rgba(0,0,0,0.9);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .narrator-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(20, 15, 10, 0.7);
+            border: 1px solid #3a2a1a;
+            border-radius: 20px;
+            margin: 15px 0;
+            color: #8b7355;
+            font-size: 0.9em;
+            backdrop-filter: blur(6px);
+        }
+
+        .narrator-status .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #8b7355;
+            transition: all 0.3s ease;
+        }
+
+        .narrator-status.playing .dot {
+            background: #ff6b35;
+            animation: pulsePlay 1s infinite;
+        }
+
+        .narrator-status.playing {
+            color: #ff6b35;
+            border-color: #ff6b35;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #8b0000, #4a0000);
+            color: #d4c5a9;
+            border: 1px solid #8b0000;
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            margin: 10px;
+            border-radius: 3px;
+        }
+        .btn:hover {
+            background: linear-gradient(135deg, #a00000, #6a0000);
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        .btn.secondary {
+            background: transparent;
+            border: 1px solid #8b7355;
+            color: #8b7355;
+        }
+        .btn.secondary:hover {
+            background: rgba(139, 115, 85, 0.1);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #4a0000, #2a0000);
+            border-color: #4a0000;
+        }
+        .btn:disabled {
+            opacity: 0.4; cursor: not-allowed; transform: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(20, 15, 10, 0.9);
+            border: 1px solid #2a1a0a;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .game-header .case-title {
+            font-size: 1.1em; color: #ff6b35; letter-spacing: 1px;
+        }
+        .game-header .evidence-count { font-size: 0.9em; color: #8b7355; }
+
+        .nav-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .nav-btn {
+            padding: 12px 15px;
+            background: rgba(30, 20, 15, 0.8);
+            border: 1px solid #2a1a0a;
+            color: #d4c5a9;
+            font-family: 'Georgia', serif;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            border-radius: 3px;
+        }
+        .nav-btn:hover {
+            background: rgba(60, 30, 20, 0.8);
+            border-color: #8b0000;
+        }
+        .nav-btn.active {
+            background: rgba(139, 0, 0, 0.3);
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+        .nav-btn .icon { margin-right: 8px; }
+
+        .content-panel {
+            background: rgba(20, 15, 10, 0.9);
+            border: 1px solid #2a1a0a;
+            border-radius: 5px;
+            padding: 25px;
+            margin-bottom: 20px;
+            min-height: 300px;
+        }
+        .content-panel h2 {
+            color: #ff6b35; font-size: 1.4em;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 1px solid #2a1a0a;
+        }
+        .content-panel p { line-height: 1.7; margin-bottom: 12px; color: #c4b59a; }
+
+        .evidence-card {
+            background: rgba(30, 25, 18, 0.8);
+            border: 1px solid #3a2a1a;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .evidence-card:hover {
+            border-color: #8b0000;
+            background: rgba(40, 30, 20, 0.9);
+        }
+        .evidence-card.found {
+            border-color: #4a6a4a;
+            background: rgba(30, 40, 30, 0.8);
+            cursor: pointer;
+        }
+        .evidence-card.found::before { content: '✓ '; color: #6a9a6a; }
+        .evidence-card .evidence-title {
+            color: #d4c5a9; font-size: 1em; margin-bottom: 8px;
+        }
+        .evidence-card.found .evidence-title { color: #8aaa8a; }
+        .evidence-card .evidence-text {
+            color: #a09080; font-size: 0.9em; line-height: 1.5; font-style: italic;
+        }
+        .evidence-card .evidence-meaning {
+            color: #ff6b35; font-size: 0.85em;
+            margin-top: 8px; padding-top: 8px;
+            border-top: 1px solid #2a1a0a;
+        }
+        .evidence-view-hint {
+            color: #8b7355; font-size: 0.75em; margin-top: 10px; padding-top: 8px;
+            border-top: 1px dashed #2a1a0a; text-align: right; font-style: italic; transition: color 0.3s ease;
+        }
+        .evidence-card.found:hover .evidence-view-hint { color: #ff6b35; }
+
+        .evidence-card.blurred {
+            border-style: dashed; border-color: #4a3a2a;
+            background: rgba(20, 15, 10, 0.6);
+        }
+        .evidence-card.blurred:hover {
+            border-color: #8b7355; background: rgba(30, 25, 18, 0.7);
+        }
+        .evidence-card.blurred .evidence-title { color: #8b7355; }
+        .blurred-text { filter: blur(5px); user-select: none; pointer-events: none; color: #4a3a2a; }
+
+        .location-card { position: relative; overflow: hidden; }
+        .location-preview {
+    width: 100%; height: 150px; border-radius: 5px; overflow: hidden;
+    margin-bottom: 12px; background: #0a0a0a; border: 1px solid #2a1a0a;
+    position: relative;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+.location-preview-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff6b35; /* Оранжевый цвет как в заголовках */
+    font-size: 1.3em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+    width: 80%;
+    background: rgba(10, 5, 0, 0.85); /* Темная полупрозрачная плашка */
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #3a2a1a;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px); /* Легкое размытие фона за текстом */
+    pointer-events: none;
+}
+.location-card:hover .location-preview img { transform: scale(1.05); }
+        .location-card:hover .location-preview img { transform: scale(1.05); }
+        
+        .location-media-wrapper {
+            width: 100%; border-radius: 5px; overflow: hidden; margin-bottom: 20px;
+            border: 1px solid #3a2a1a; background: #0a0a0a;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .location-media-wrapper img, .location-media-wrapper video {
+            width: 100%; height: auto; max-height: 500px; object-fit: contain; display: block;
+        }
+
+        .location-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+        .location-left { display: flex; flex-direction: column; gap: 15px; position: sticky; top: 20px; }
+        .location-right { display: flex; flex-direction: column; gap: 12px; max-height: 700px; overflow-y: auto; padding-right: 5px; }
+        .location-right h3 { margin-top: 0; color: #8b7355; font-size: 1.2em; padding-bottom: 10px; border-bottom: 1px solid #2a1a0a; }
+        .location-right p { margin-bottom: 10px; }
+        .location-right::-webkit-scrollbar { width: 6px; }
+        .location-right::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 3px; }
+        .location-right::-webkit-scrollbar-thumb { background: #3a2a1a; border-radius: 3px; }
+        .location-right::-webkit-scrollbar-thumb:hover { background: #8b0000; }
+
+        .location-status {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #2a1a0a;
+            font-size: 0.8em;
+            color: #8b7355;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+
+        .location-status.found {
+            color: #6a9a6a;
+            font-style: normal;
+        }
+
+        @media (max-width: 900px) {
+            .location-content { grid-template-columns: 1fr; }
+            .location-left { position: static; }
+            .location-right { max-height: none; }
+        }
+
+        .interrogation-panel { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        @media (max-width: 700px) { .interrogation-panel { grid-template-columns: 1fr; } }
+
+        .character-card {
+            background: rgba(30, 25, 18, 0.8); border: 1px solid #3a2a1a; border-radius: 5px;
+            padding: 15px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .character-card:hover { border-color: #8b0000; background: rgba(40, 30, 20, 0.9); }
+        .character-card.selected { border-color: #ff6b35; background: rgba(60, 30, 20, 0.9); }
+        .character-card .char-name { color: #ff6b35; font-size: 1.1em; margin-bottom: 5px; }
+        .character-card .char-role { color: #8b7355; font-size: 0.85em; font-style: italic; }
+
+        .interrogation-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; align-items: start; }
+        .interrogation-right {
+            display: flex; flex-direction: column; gap: 15px; max-height: 600px;
+            overflow-y: auto; padding-right: 5px;
+        }
+        .interrogation-right .dialogue-box { margin-top: 0; }
+        .interrogation-right::-webkit-scrollbar { width: 6px; }
+        .interrogation-right::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 3px; }
+        .interrogation-right::-webkit-scrollbar-thumb { background: #3a2a1a; border-radius: 3px; }
+        .interrogation-right::-webkit-scrollbar-thumb:hover { background: #8b0000; }
+        .interrogation-content .character-portrait-wrapper { margin-top: 0; }
+
+        @media (max-width: 900px) {
+            .interrogation-content { grid-template-columns: 1fr; }
+            .interrogation-right { max-height: none; }
+        }
+
+        .character-portrait-wrapper {
+            position: relative; width: 100%; border-radius: 5px; overflow: hidden;
+            margin: 15px 0; border: 1px solid #3a2a1a; background: #0a0a0a;
+        }
+        .character-portrait-wrapper img, .character-portrait-wrapper video {
+            width: 100%; height: auto; max-height: 500px; object-fit: contain; display: block;
+        }
+        .character-portrait-wrapper .portrait-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 15px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+        }
+        .character-portrait-wrapper .portrait-overlay .name { color: #ff6b35; font-size: 1.2em; }
+        .character-portrait-wrapper .portrait-overlay .role { color: #8b7355; font-size: 0.85em; font-style: italic; }
+
+        .dialogue-box {
+            background: rgba(15, 10, 8, 0.95); border: 1px solid #3a2a1a;
+            border-radius: 5px; padding: 20px; margin-top: 15px;
+        }
+        .dialogue-box .speaker { color: #ff6b35; font-size: 1em; margin-bottom: 10px; }
+        .dialogue-box .line { color: #c4b59a; line-height: 1.7; font-style: italic; }
+
+        .questions-list { margin-top: 0; }
+        .question-btn {
+            display: flex; align-items: center; gap: 12px; width: 100%;
+            padding: 12px 15px; background: rgba(30, 20, 15, 0.6);
+            border: 1px solid #2a1a0a; color: #c4b59a; font-family: 'Georgia', serif;
+            font-size: 0.9em; cursor: pointer; transition: all 0.3s ease;
+            text-align: left; margin-bottom: 8px; border-radius: 3px;
+        }
+        .question-btn:hover { background: rgba(60, 30, 20, 0.8); border-color: #8b0000; color: #ff6b35; }
+        .question-btn.asked { border-color: #4a6a4a; background: rgba(30, 40, 30, 0.6); }
+        .question-btn.locked { opacity: 0.5; cursor: not-allowed; border-style: dashed; color: #6a5a4a; }
+        .question-btn.locked:hover { background: rgba(30, 20, 15, 0.6); border-color: #2a1a0a; color: #6a5a4a; }
+        .question-btn .play-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; border-radius: 50%; border: 1px solid #8b7355;
+            color: #8b7355; font-size: 0.8em; flex-shrink: 0; transition: all 0.3s ease;
+        }
+        .question-btn.locked .play-icon { border-color: #6a5a4a; color: #6a5a4a; }
+        .question-btn:hover .play-icon { border-color: #ff6b35; color: #ff6b35; }
+        .question-btn.locked:hover .play-icon { border-color: #6a5a4a; color: #6a5a4a; }
+        .question-btn.playing { border-color: #ff6b35; background: rgba(139, 0, 0, 0.3); color: #ff6b35; }
+        .question-btn.playing .play-icon {
+            border-color: #ff6b35; color: #ff6b35;
+            background: rgba(255, 107, 53, 0.2); animation: pulsePlay 1s infinite;
+        }
+
+        .answer-controls {
+            display: flex; align-items: center; gap: 12px; margin-top: 15px;
+            padding-top: 15px; border-top: 1px solid #2a1a0a;
+        }
+        .replay-btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px;
+            background: rgba(139, 115, 85, 0.2); border: 1px solid #8b7355;
+            color: #8b7355; font-family: 'Georgia', serif; font-size: 0.85em;
+            cursor: pointer; border-radius: 20px; transition: all 0.3s ease;
+        }
+        .replay-btn:hover { background: rgba(139, 115, 85, 0.3); border-color: #ff6b35; color: #ff6b35; }
+        .audio-progress { flex: 1; height: 4px; background: rgba(139, 115, 85, 0.2); border-radius: 2px; overflow: hidden; min-width: 100px; }
+        .audio-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #8b0000, #ff6b35); transition: width 0.1s linear; }
+
+        .notes-input {
+            width: 100%; min-height: 200px; background: rgba(15, 10, 8, 0.8);
+            border: 1px solid #2a1a0a; color: #c4b59a; font-family: 'Georgia', serif;
+            font-size: 0.95em; padding: 12px; border-radius: 3px; resize: vertical;
+        }
+        .notes-input:focus { outline: none; border-color: #8b0000; }
+
+        .accusation-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 30px 0; }
+        .accusation-btn {
+            padding: 20px 30px; background: rgba(30, 20, 15, 0.8);
+            border: 2px solid #3a2a1a; color: #d4c5a9; font-family: 'Georgia', serif;
+            font-size: 1.1em; cursor: pointer; transition: all 0.3s ease;
+            border-radius: 5px; min-width: 200px;
+        }
+        .accusation-btn:hover { border-color: #ff6b35; background: rgba(60, 30, 20, 0.9); }
+        .accusation-btn.selected { border-color: #ff6b35; background: rgba(139, 0, 0, 0.3); color: #ff6b35; }
+
+        .accusation-audio-player {
+            display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+            background: rgba(20, 15, 10, 0.85); border: 1px solid #3a2a1a;
+            border-radius: 30px; margin: 20px auto; max-width: 500px;
+            backdrop-filter: blur(8px); transition: all 0.3s ease;
+        }
+        .accusation-audio-player button {
+            background: none; border: 1px solid #8b7355; color: #8b7355;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            font-size: 1em; transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .accusation-audio-player button:hover { background: rgba(139, 115, 85, 0.2); border-color: #ff6b35; color: #ff6b35; }
+        .accusation-audio-player .audio-label { color: #8b7355; font-size: 0.9em; letter-spacing: 1px; flex-shrink: 0; }
+        .accusation-audio-player.playing { border-color: #ff6b35; box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+        .accusation-audio-player.playing button { border-color: #ff6b35; color: #ff6b35; animation: pulsePlay 1s infinite; }
+        .accusation-audio-player.playing .audio-label { color: #ff6b35; }
+        .accusation-audio-progress { flex: 1; height: 4px; background: rgba(139, 115, 85, 0.2); border-radius: 2px; overflow: hidden; min-width: 80px; }
+        .accusation-audio-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #8b0000, #ff6b35); transition: width 0.1s linear; }
+
+        .result-screen { text-align: center; padding: 40px 20px; }
+        .result-screen .win { color: #6a9a6a; font-size: 2em; margin-bottom: 20px; }
+        .result-screen .lose { color: #ff4444; font-size: 2em; margin-bottom: 20px; }
+
+        .final-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .final-left { position: sticky; top: 20px; }
+        .final-right { text-align: left; }
+
+        .final-image-wrapper {
+            width: 100%; border-radius: 5px; overflow: hidden;
+            border: 2px solid #8b0000; background: #0a0a0a;
+            box-shadow: 0 0 40px rgba(139, 0, 0, 0.6);
+        }
+        .final-image-wrapper img { width: 100%; height: auto; max-height: 600px; object-fit: contain; display: block; }
+
+        .final-audio-player {
+            max-width: 100%; margin: 20px auto; padding: 15px 20px;
+            background: rgba(20, 15, 10, 0.9); border: 1px solid #3a2a1a;
+            border-radius: 30px; display: flex; align-items: center; gap: 15px; transition: all 0.3s ease;
+        }
+        .final-audio-player.playing { border-color: #ff6b35; box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+        .final-audio-player button {
+            background: none; border: 1px solid #8b7355; color: #8b7355;
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2em; transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .final-audio-player button:hover { background: rgba(139, 115, 85, 0.2); border-color: #ff6b35; color: #ff6b35; }
+        .final-audio-player.playing button { border-color: #ff6b35; color: #ff6b35; animation: pulsePlay 1s infinite; }
+        .final-audio-player .audio-label { color: #8b7355; font-size: 0.9em; letter-spacing: 1px; flex-shrink: 0; }
+        .final-audio-player.playing .audio-label { color: #ff6b35; }
+
+        @media (max-width: 900px) {
+            .final-content { grid-template-columns: 1fr; }
+            .final-left { position: static; }
+        }
+
+        .audio-player {
+            display: flex; align-items: center; gap: 10px; padding: 10px 15px;
+            background: rgba(30, 20, 15, 0.6); border: 1px solid #2a1a0a;
+            border-radius: 5px; margin: 10px 0; transition: all 0.3s ease;
+        }
+        .audio-player button {
+            background: none; border: 1px solid #8b7355; color: #8b7355;
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            font-size: 1.2em; transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .audio-player button:hover { background: rgba(139, 115, 85, 0.2); border-color: #ff6b35; color: #ff6b35; }
+        .audio-player .audio-label { color: #8b7355; font-size: 0.9em; }
+        .audio-player.playing { border-color: #ff6b35; box-shadow: 0 0 15px rgba(255, 107, 53, 0.3); }
+        .audio-player.playing button { border-color: #ff6b35; color: #ff6b35; background: rgba(255, 107, 53, 0.15); }
+        .audio-player.playing .audio-label { color: #ff6b35; }
+
+        @keyframes fireGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(255, 107, 53, 0.6); }
+        }
+        .fire-glow { animation: fireGlow 3s infinite; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #3a2a1a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b0000; }
+
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+
+        .evidence-popup {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2000; align-items: center; justify-content: center; padding: 20px;
+        }
+        .evidence-popup.active { display: flex; animation: fadeIn 0.3s ease; }
+        .evidence-popup-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(5px); cursor: pointer;
+        }
+        .evidence-popup-content {
+            position: relative; z-index: 1;
+            background: linear-gradient(135deg, #1a1410, #0f0a08);
+            border: 2px solid #8b0000; border-radius: 10px; padding: 25px;
+            max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 0 60px rgba(139, 0, 0, 0.5); animation: popupIn 0.4s ease;
+        }
+        @keyframes popupIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .evidence-popup-close {
+            position: absolute; top: 15px; right: 15px; background: transparent;
+            border: 1px solid #8b7355; color: #8b7355; width: 35px; height: 35px;
+            border-radius: 50%; cursor: pointer; font-size: 1em; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .evidence-popup-close:hover { background: rgba(139, 0, 0, 0.3); border-color: #ff6b35; color: #ff6b35; }
+        .evidence-popup-image-wrapper {
+            width: 100%; max-height: 450px; border-radius: 5px; overflow: hidden;
+            margin-bottom: 20px; border: 1px solid #3a2a1a; background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .evidence-popup-image-wrapper img {
+            width: 100%; height: auto; max-height: 450px; object-fit: contain; display: block;
+        }
+        .evidence-popup-title {
+            color: #ff6b35; font-size: 1.4em; margin-bottom: 15px; letter-spacing: 1px; text-align: center;
+        }
+        .evidence-popup-text {
+            color: #c4b59a; font-size: 1em; line-height: 1.7; font-style: italic;
+            margin-bottom: 20px; padding: 15px; background: rgba(30, 25, 18, 0.6);
+            border-left: 3px solid #8b7355; border-radius: 3px;
+        }
+        .evidence-popup-meaning {
+            color: #ff6b35; font-size: 0.95em; padding: 15px;
+            background: rgba(139, 0, 0, 0.1); border: 1px solid #8b0000;
+            border-radius: 5px; line-height: 1.6;
+        }
+        .evidence-popup-meaning::before { content: '🔍 Значение: '; color: #8b7355; font-style: italic; }
+
+        @media (max-width: 700px) {
+            .evidence-popup-content { padding: 20px 15px; }
+            .evidence-popup-title { font-size: 1.2em; }
+            .evidence-popup-text { font-size: 0.95em; }
+        }
+
+        .evidence-folder {
+            background: rgba(20, 15, 10, 0.7); border: 1px solid #2a1a0a;
+            border-radius: 5px; margin-bottom: 20px; overflow: hidden;
+        }
+        .evidence-folder-header {
+            display: flex; align-items: center; gap: 12px; padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(60, 30, 20, 0.8), rgba(30, 20, 15, 0.9));
+            border-bottom: 1px solid #2a1a0a; cursor: pointer;
+            transition: all 0.3s ease; user-select: none;
+        }
+        .evidence-folder-header:hover {
+            background: linear-gradient(135deg, rgba(80, 40, 25, 0.9), rgba(40, 25, 18, 0.95));
+            border-bottom-color: #8b0000;
+        }
+        .evidence-folder-header .folder-icon { font-size: 1.4em; flex-shrink: 0; }
+        .evidence-folder-header .folder-name { color: #ff6b35; font-size: 1.05em; letter-spacing: 1px; flex: 1; }
+        .evidence-folder-header .folder-count {
+            background: rgba(139, 0, 0, 0.4); color: #d4c5a9; font-size: 0.85em;
+            padding: 3px 12px; border-radius: 12px; border: 1px solid #8b0000; flex-shrink: 0;
+        }
+        .evidence-folder-body { padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+        .evidence-folder.collapsed .evidence-folder-body { display: none; }
+        .evidence-folder.collapsed .evidence-folder-header::after {
+            content: '▶'; color: #8b7355; font-size: 0.8em; margin-left: 5px; transition: all 0.3s ease;
+        }
+        .evidence-folder:not(.collapsed) .evidence-folder-header::after {
+            content: '▼'; color: #ff6b35; font-size: 0.8em; margin-left: 5px; transition: all 0.3s ease;
+        }
+        @media (max-width: 700px) {
+            .evidence-folder-header { padding: 12px 15px; }
+            .evidence-folder-header .folder-name { font-size: 0.95em; }
+            .evidence-folder-body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="screen active" id="screen-title">
+        <div class="title-screen">
+            <div class="title-video-bg">
+                <video id="title-video" autoplay muted loop playsinline>
+                    <source src="video/mansion.mp4" type="video/mp4">
+                </video>
+                <div class="title-video-overlay"></div>
+            </div>
+            <div class="title-content">
+                <div class="case-number">ДЕЛО №31-10</div>
+                <h1>ПОСЛЕДНЯЯ СВЕЧА</h1>
+                <div class="subtitle">Детективный квест</div>
+                <p class="title-text">
+                    Осень 1923 года. Особняк Вороньего гнезда.<br>
+                </p>
+                <div class="title-audio-player" id="title-audio-player">
+                    <button id="title-intro-btn" onclick="playTitleIntro()">▶</button>
+                    <span class="audio-label">Вступление</span>
+                    <audio id="title-intro-audio">
+                        <source src="audio/mansion_intro.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+                <div>
+                    <button class="btn fire-glow" onclick="goToNarrator()">Далее →</button>
+                </div>
+            </div>
+            <audio id="bg-music" loop>
+                <source src="audio/background.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-narrator">
+        <div class="narrator-screen">
+            <div class="narrator-video-wrap">
+                <video id="narrator-video" playsinline>
+                    <source src="video/nachalo.mp4" type="video/mp4">
+                </video>
+                <div class="narrator-overlay"></div>
+            </div>
+            <div class="narrator-content">
+                <h2>Голос из темноты</h2>
+                <div class="narrator-status" id="narrator-status">
+                    <span class="dot"></span>
+                    <span id="narrator-status-text">Рассказчик говорит...</span>
+                </div>
+                <div>
+                    <button class="btn fire-glow" onclick="startGame()">Начать расследование</button>
+                </div>
+            </div>
+            <audio id="narrator-audio">
+                <source src="audio/narrator_intro.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-game">
+        <div class="game-header">
+            <div class="case-title">🔪 Дело №31-10: Последняя свеча</div>
+            <div class="evidence-count" id="evidence-counter">Улик найдено: 0 / 27</div>
+        </div>
+
+        <div class="nav-panel">
+            <button class="nav-btn active" onclick="showTab('locations')">
+                <span class="icon">🏠</span> Локации
+            </button>
+            <button class="nav-btn" onclick="showTab('evidence')">
+                <span class="icon">🔍</span> Улики
+            </button>
+            <button class="nav-btn" onclick="showTab('interrogation')">
+                <span class="icon">👤</span> Допрос
+            </button>
+            <button class="nav-btn" onclick="showTab('notes')">
+                <span class="icon">📝</span> Заметки
+            </button>
+            <button class="nav-btn" onclick="showTab('accuse')">
+                <span class="icon">⚖️</span> Обвинение
+            </button>
+        </div>
+
+        <div class="content-panel" id="tab-locations">
+            <h2>🏠 Осмотр локаций</h2>
+            <p>Выберите локацию для осмотра. В каждой локации можно найти улики.</p>
+            <div id="locations-list"></div>
+        </div>
+
+        <div class="content-panel hidden" id="tab-evidence">
+            <h2>🔍 Найденные улики</h2>
+            <p>Улики, которые вы обнаружили.</p>
+            <div id="evidence-list"></div>
+        </div>
+
+        <div class="content-panel hidden" id="tab-interrogation">
+            <h2>👤 Допрос подозреваемых</h2>
+            <p>Нажмите на вопрос — услышите ответ и увидите текст.</p>
+            <div class="interrogation-panel" id="characters-list"></div>
+
+            <div class="interrogation-content">
+                <div id="character-portrait-container" class="hidden">
+                    <div class="character-portrait-wrapper">
+                        <img id="character-portrait-img" src="" alt="" style="display:none;">
+                        <video id="character-portrait-video" style="display:none;" muted loop playsinline></video>
+                        <div class="portrait-overlay">
+                            <div class="name" id="portrait-name"></div>
+                            <div class="role" id="portrait-role"></div>
+                        </div>
+                    </div>
+                    <div class="audio-player">
+                        <button onclick="playCharacterIntro()">▶</button>
+                        <span class="audio-label" id="character-audio-label">Голос персонажа — вступление</span>
+                        <audio id="character-intro-audio">
+                            <source src="" type="audio/mpeg">
+                        </audio>
+                    </div>
+                </div>
+
+                <div class="interrogation-right">
+                    <div class="dialogue-box hidden" id="dialogue-box">
+                        <div class="speaker" id="dialogue-speaker"></div>
+                        <div class="line" id="dialogue-line"></div>
+                        <div class="answer-controls hidden" id="answer-controls">
+                            <button class="replay-btn" onclick="replayAnswer()">
+                                <span id="replay-icon">▶</span> <span id="replay-text">Повторить</span>
+                            </button>
+                            <div class="audio-progress">
+                                <div class="audio-progress-bar" id="audio-progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="questions-list hidden" id="questions-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-panel hidden" id="tab-notes">
+            <h2>📝 Заметки детектива</h2>
+            <p>Записывайте свои мысли, подозрения и выводы.</p>
+            <textarea class="notes-input" id="notes-input" placeholder="Кто убийца? Какие улики указывают на него?.."></textarea>
+        </div>
+
+        <div class="content-panel hidden" id="tab-accuse">
+            <h2>⚖️ Финальное обвинение</h2>
+            <p>Вы уверены, кто убийца? Выберите имя.</p>
+            <div class="accusation-btns" id="accusation-btns"></div>
+            <div class="text-center mt-20">
+                <button class="btn danger" id="accuse-btn" onclick="confirmAccusation()" disabled>Назвать убийцу</button>
+            </div>
+            <div id="accusation-result" class="hidden" style="margin-top: 30px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-result">
+        <div class="result-screen">
+            <div class="win" style="margin-bottom: 30px;">✓ ДЕЛО ЗАКРЫТО</div>
+
+            <div class="final-content">
+                <div class="final-left">
+                    <div class="final-image-wrapper">
+                        <img id="final-image" src="images/maid_arrested.png" alt="Арестованная горничная">
+                    </div>
+                    <div class="final-audio-player" id="final-audio-player" style="margin-top: 20px;">
+                        <button id="final-audio-btn" onclick="toggleFinalAudio()">▶</button>
+                        <span class="audio-label">Финальный голос рассказчика</span>
+                        <div class="audio-progress">
+                            <div class="audio-progress-bar" id="final-audio-progress-bar"></div>
+                        </div>
+                    </div>
+                    <audio id="final-audio" preload="auto">
+                        <source src="audio/final_narrator.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+
+                <div class="final-right" id="result-content"></div>
+            </div>
+
+            <button class="btn mt-20" style="margin-top: 40px;" onclick="location.reload()">Начать заново</button>
+        </div>
+    </div>
+
+</div>
+
+<audio id="answer-audio"></audio>
+<audio id="correct-accusation-audio" preload="auto">
+    <source src="audio/narratorend.mp3" type="audio/mpeg">
+</audio>
+<audio id="wrong-accusation-audio" preload="auto">
+    <source src="audio/wrong_accusation.mp3" type="audio/mpeg">
+</audio>
+<audio id="footsteps-audio" preload="auto">
+    <source src="audio/footsteps.mp3" type="audio/mpeg">
+</audio>
+<audio id="title-music" loop>
+    <source src="audio/title_music.mp3" type="audio/mpeg">
+</audio>
+<audio id="game-music" loop>
+    <source src="audio/game_music.mp3" type="audio/mpeg">
+</audio>
+<audio id="final-music" loop>
+    <source src="audio/final_music.mp3" type="audio/mpeg">
+</audio>
+
+<div class="evidence-popup" id="evidence-popup">
+    <div class="evidence-popup-overlay" onclick="closeEvidencePopup()"></div>
+    <div class="evidence-popup-content">
+        <button class="evidence-popup-close" onclick="closeEvidencePopup()">✕</button>
+        <div class="evidence-popup-image-wrapper">
+            <img id="evidence-popup-img" src="" alt="">
+        </div>
+        <div class="evidence-popup-title" id="evidence-popup-title"></div>
+        <div class="evidence-popup-text" id="evidence-popup-text"></div>
+        <div class="evidence-popup-meaning" id="evidence-popup-meaning"></div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// СОСТОЯНИЕ ИГРЫ
+// ============================================
+
+const GAME_STATE = {
+    foundEvidence: [],
+    foundOrder: [],
+    currentCharacter: null,
+    currentLocationId: null,
+    selectedAccusation: null,
+    wrongAttempts: 0,
+    showFloorHint: false,
+    playedLocationsAudio: []
+};
+
+// ============================================
+// МЕДИАФАЙЛЫ
+// ============================================
+
+const MEDIA = {
+    characters: {
+        pendleton: { image: 'images/pendleton.jpg', video: 'video/pendleton.mp4', audioIntro: 'audio/pendleton_intro.mp3' },
+        duval:     { image: 'images/duval.jpg',     video: 'video/duval.mp4', audioIntro: 'audio/duval_intro.mp3' },
+        crow:      { image: 'images/crow.jpg',      video: 'video/crow.mp4', audioIntro: 'audio/crow_intro.mp3' },
+        butler:    { image: '', video: 'video/butler.mp4', audioIntro: 'audio/butler_intro.mp3' },
+        maid:      { image: '', video: 'video/maid.mp4', audioIntro: 'audio/maid_intro.mp3' },
+        inspector: { image: '', video: 'video/inspector.mp4', audioIntro: 'audio/inspector_intro.mp3' }
+    },
+        locations: {
+        office:    { image: 'images/locations/office.png',    previewImage: 'images/locations/previews/office.jpg',    video: '', audio: 'audio/locations/office.mp3' },
+        living:    { image: 'images/locations/living.png',    previewImage: 'images/locations/previews/living.jpg',    video: '', audio: 'audio/locations/living.mp3' },
+        dining:    { image: 'images/locations/dining.png',    previewImage: 'images/locations/previews/dining.jpg',    video: '', audio: 'audio/locations/dining.mp3' },
+        corridor:  { image: 'images/locations/corridor.png',  previewImage: 'images/locations/previews/corridor.jpg',  video: '', audio: 'audio/locations/corridor.mp3' },
+        pendleton: { image: 'images/locations/pendleton.png', previewImage: 'images/locations/previews/pendleton.jpg', video: '', audio: 'audio/locations/pendleton_room.mp3' },
+        duval:     { image: 'images/locations/duval.png',     previewImage: 'images/locations/previews/duval.jpg',     video: '', audio: 'audio/locations/duval_room.mp3' },
+        crow:      { image: 'images/locations/crow.png',      previewImage: 'images/locations/previews/crow.jpg',      video: '', audio: 'audio/locations/crow_room.mp3' },
+        attic:     { image: 'images/locations/attic.png',     previewImage: 'images/locations/previews/attic.jpg',     video: '', audio: 'audio/locations/attic.mp3' },
+        butler:    { image: 'images/locations/butler.png',    previewImage: 'images/locations/previews/butler.jpg',    video: '', audio: 'audio/locations/butler_room.mp3' },
+        maid:      { image: 'images/locations/maid.png',      previewImage: 'images/locations/previews/maid.jpg',      video: '', audio: 'audio/locations/maid_room.mp3' }
+    },
+    evidence: {
+        evidence1:      'images/evidence/evidence1.png',
+        evidence2:      'images/evidence/evidence2.png',
+        evidence3:      'images/evidence/evidence3.jpg',
+        evidence4:      'images/evidence/evidence4.jpg',
+        evidence5:      'images/evidence/evidence5.png',
+        evidence6:      'images/evidence/evidence6.png',
+        evidence7:      'images/evidence/evidence7.png',
+        evidence8:      'images/evidence/evidence8.png',
+        evidence9:      'images/evidence/evidence9.png',
+        evidence10:     'images/evidence/evidence10.png',
+        evidence11:     'images/evidence/evidence11.png',
+        evidence12:     'images/evidence/evidence12.png',
+        evidence13:     'images/evidence/evidence13.png',
+        evidence14:     'images/evidence/evidence14.png',
+        evidence2_duval:'images/evidence/evidence2_duval.png',
+        evidence_shpric:'images/evidence/evidence_shpric.png',
+        evidence_butler_letter: 'images/evidence/butler_letter.png',
+        evidence_butler_key: 'images/evidence/butler_key.png',
+        evidence_pendleton_letter: 'images/evidence/pendleton_letter.png',
+        evidence_maid_note: 'images/evidence/maid_note.png',
+        evidence_maid_tear: 'images/evidence/maid_tear.png',
+        evidence_maid_apron: 'images/evidence/maid_apron.png',
+        evidence_maid_threat: 'images/evidence/maid_threat.png',
+        evidence_brass_key: 'images/evidence/brass_key.png',
+        evidence_butler_box: 'images/evidence/butler_box.png',
+        evidence_butler_letter_A: 'images/evidence/butler_letter_A.png',
+        evidence_inspector_notebook: 'images/evidence/inspector_notebook.png'
+    },
+    finalImage: 'images/maid_arrested.png',
+    finalAudio: 'audio/final_narrator.mp3',
+    correctAccusationAudio: 'audio/narratorend.mp3',
+    wrongAccusationAudio: 'audio/wrong_accusation.mp3',
+    backgroundMusic: 'audio/background.mp3'
+};
+
+// ============================================
+// ЛОКАЦИИ
+// ============================================
+
+const LOCATIONS = [
+    { id: 'office',    name: 'Кабинет хозяина',           icon: '📁', description: 'Место преступления. Тело Илая Блэквуда за письменным столом. Разбитый бокал.', evidence: ['evidence1', 'evidence2', 'evidence3', 'evidence4', 'evidence_maid_tear'] },
+    { id: 'living',    name: 'Гостиная',                  icon: '🛋️', description: 'Здесь собрались гости. Бутылка бренди, бокалы, чайник. Следы на ковре.', evidence: ['evidence5', 'evidence6', 'evidence_inspector_notebook'] },
+    { id: 'dining',    name: 'Столовая',                  icon: '🍽️', description: 'Остатки ужина. Свечи. На столе — раскрытый дневник хозяина.', evidence: ['evidence7'] },
+    { id: 'corridor',  name: 'Коридор',                   icon: '🚪', description: 'Длинный коридор. Свечи на стенах. Гобелен.', evidence: ['evidence8'] },
+    { id: 'pendleton', name: 'Спальня лорда Пендлтона',   icon: '🎩', description: 'Аккуратно заправленная кровать. Пиджак на стуле.', evidence: ['evidence12', 'evidence13', 'evidence11'] },
+    { id: 'duval',     name: 'Спальня мисс Дюваль',       icon: '🎭', description: 'Свечи, травы, карты Таро. Сумочка на столике.', evidence: ['evidence2_duval'] },
+    { id: 'crow',      name: 'Спальня доктора Кроу',      icon: '🩺', description: 'Медицинский саквояж. Шприц. Пальто.', evidence: ['evidence9', 'evidence_shpric'] },
+    { id: 'attic',     name: 'Чердак',                    icon: '🕸️', description: 'Пыль, паутина, старые вещи. Сундук в углу.', evidence: ['evidence10', 'evidence14'] },
+    { id: 'butler',    name: 'Комната дворецкого',        icon: '🚪', description: 'Скромная комната. Пахнет старым деревом и табаком. На столе — стопка писем. В верхнем ящике — что-то запертое. Дворецкий живет здесь двадцать лет, но эта комната выглядит так, будто в ней никто не живёт.', evidence: ['evidence_butler_letter', 'evidence_butler_key', 'evidence_pendleton_letter', 'evidence_butler_box', 'evidence_butler_letter_A'] },
+    { id: 'maid',      name: 'Комната горничной',         icon: '🧹', description: 'Маленькая комнатка под лестницей. Кровать заправлена, на гвозде у двери — фартук с оборванной тесёмкой. На комоде — зеркало и шкатулка. На полу — клочок бумаги. Кажется, кто-то очень торопился.', evidence: ['evidence_maid_note', 'evidence_maid_apron', 'evidence_maid_threat', 'evidence_brass_key'] }
+];
+
+// ============================================
+// УЛИКИ
+// ============================================
+
+const EVIDENCE = {
+    evidence1:      { id: 'evidence1',      title: 'Письмо на столе',                    text: '«Илай, ты должен отдать свечу. Она принадлежит Ордену. Если ты не отдашь её добровольно, мы заберём её силой». Подпись: «О.»', meaning: 'Хозяин был в опасности. Кто-то из «Ордена» угрожал ему.' },
+    evidence2:      { id: 'evidence2',      title: 'Пузырёк под столом',                 text: 'Маленький пузырёк с остатками жидкости. Запах — миндальный. Это цианид.', meaning: 'Кто-то отравил хозяина.' },
+    evidence3:      { id: 'evidence3',      title: 'Ключ в замке (дубликат)',            text: 'В замке кабинета — ключ. Но он НЕ ПОДХОДИТ к замку. Это дубликат.', meaning: 'Убийца хотел создать видимость. Настоящий ключ у него.' },
+    evidence4:      { id: 'evidence4',      title: 'Записка в кармане хозяина',          text: '«Я знаю, кто из вас убийца. В полночь я назову имя».', meaning: 'Хозяин знал, кто убийца.' },
+    evidence5:      { id: 'evidence5',      title: 'Следы на ковре',                     text: 'Следы от туфель. Размер — 44.', meaning: 'У убийцы 44-й размер.' },
+    evidence6:      { id: 'evidence6',      title: 'Разбитый бокал',                     text: 'Бокал хозяина разбит. Запах миндаля.', meaning: 'Хозяин выпил отравленное вино.' },
+    evidence7:      { id: 'evidence7',      title: 'Дневник хозяина',                    text: '«31 октября. Я спрятал свечу. Они не найдут её. А если найдут — она убьёт их».', meaning: 'Хозяин знал, что его убьют. Он спрятал свечу.' },
+    evidence8:      { id: 'evidence8',      title: 'Свеча',                              text: 'Та самая свеча. Не тронута. Она просто лежала в другом месте.', meaning: 'Убийца не хотел свечу? Он хотел, чтобы подумали на другого?' },
+    evidence9:      { id: 'evidence9',      title: 'Аптечная квитанция',                 text: 'Куплено: цианид. Покупатель — доктор Кроу. Дата — 28 октября.', meaning: 'Кроу купил яд за три дня до убийства.' },
+    evidence10:     { id: 'evidence10',     title: 'Показания прислуги',                 text: '«Я видела, как доктор Кроу выходил из кабинета около полуночи».', meaning: 'Кроу был последним, кто видел хозяина живым.' },
+    evidence11:     { id: 'evidence11',     title: 'Второй пузырёк (тайник Пендлтона)',  text: 'В тайнике под половицей — второй пузырёк с цианидом. Дата — 30 октября.', meaning: 'У Пендлтона был свой яд? ' },
+    evidence12:     { id: 'evidence12',     title: 'Письмо от Ордена',                  text: '«Лорд Пендлтон, вы должны вернуть свечу. Иначе мы расскажем, что вы украли реликвию».', meaning: 'Пендлтона шантажировали. Это его мотив.' },
+    evidence13:     { id: 'evidence13',     title: 'Пятно на манжете Пендлтона',        text: 'На манжете рубашки лорда Пендлтона — пятно. Пахнет миндалём.', meaning: 'Пендлтон пролил яд на себя?' },
+    evidence14:     { id: 'evidence14',     title: 'Показания прислуги (обновлённые)',  text: '«Я видела, как лорд Пендлтон выходил из кабинета. Он был в перчатках».', meaning: 'Пендлтон был в кабинете. Он соврал.' },
+    evidence2_duval:{ id: 'evidence2_duval',title: 'Пузырёк в сумочке Дюваль',          text: 'В сумочке мисс Дюваль — пузырёк с миндальным запахом.', meaning: 'У Дюваль тоже есть яд?' },
+    evidence_shpric:{ id: 'evidence_shpric',title: 'Шприц в саквояже Кроу',             text: 'В саквояже доктора Кроу — шприц со снотворным.', meaning: 'Кроу хотел усыпить хозяина, чтобы забрать свечу?' },
+    evidence_butler_letter: { id: 'evidence_butler_letter', title: 'Письмо от Ордена дворецкому', text: '«Гривз, ты помнишь ту ночь в Бристоле? Ту женщину? Мы знаем, где ты спрятал её тело. Верни свечу — или мы отправим тебя на виселицу».', meaning: 'Гривз убил человека в прошлом. Орден шантажирует его.' },
+    evidence_butler_key: { id: 'evidence_butler_key', title: 'Ключ от чёрного хода', text: 'Старый железный ключ. Подходит к двери на кухне. Дворецкий мог незаметно входить и выходить.', meaning: 'У дворецкого был тайный доступ в дом.' },
+    evidence_pendleton_letter: { id: 'evidence_pendleton_letter', title: 'Письмо Пендлтона дворецкому', text: '«Гривз, я знаю, что ты в Ордене. Если ты не поможешь мне вернуть свечу, я расскажу всем. Ты должен молчать о том, что видел».', meaning: 'Пендлтон шантажировал дворецкого. Гривз видел Пендлтона, но молчит.' },
+    evidence_maid_note: { id: 'evidence_maid_note', title: 'Записка горничной', text: '«Я видела, как лорд Пендлтон выходил из кабинета. У него был ключ. Я боюсь. Если со мной что-то случится, прошу, найдите человека в длинном пальто. Он выходил из кабинета. У него был ключ. Я боюсь его».', meaning: 'Горничная видела Пендлтона? Она боится. Она не уверена, что это был он, но боится его.' },
+        evidence_inspector_notebook: { id: 'evidence_inspector_notebook', title: 'Блокнот инспектора', text: '«Доктор Кроу — очевидный подозреваемый. Купил яд, был у кабинета. Алиби Пендлтона подтверждено. Дело закрыто».', meaning: 'Инспектор обвиняет Кроу и не проверяет Пендлтона. Его выводы ненадёжны.', requires: ['evidence9', 'evidence_shpric', 'evidence12', 'evidence13', 'evidence11'] },
+
+    // ===== НОВЫЕ УЛИКИ ПРОТИВ МЭРИ =====
+    evidence_maid_tear: { 
+        id: 'evidence_maid_tear', 
+        title: 'Обрывок тесёмки', 
+        text: 'Под столом, рядом с рукой хозяина — обрывок белой тесёмки. На конце — засохшее бурое пятно.', 
+        meaning: 'Кто-то в фартуке был рядом с хозяином в момент смерти.' 
+    },
+    evidence_maid_apron: { 
+        id: 'evidence_maid_apron', 
+        title: 'Фартук с оборванной тесёмкой', 
+        text: 'На гвозде у двери висит белый фартук. Одна тесёмка оборвана. На подоле — тёмное пятно, похожее на землю.', 
+        meaning: 'Обрывок из кабинета — от этого фартука. Мэри была в кабинете.' 
+    },
+    evidence_maid_threat: { 
+        id: 'evidence_maid_threat', 
+        title: 'Письмо хозяина', 
+        text: '«Мэри. Ты знаешь, что будет, если я расскажу всем. Уходи сама, пока не поздно. Денег не получишь». Почерк хозяина.', 
+        meaning: 'Хозяин шантажировал Мэри. У неё был мотив.' 
+    },
+    evidence_brass_key: { 
+        id: 'evidence_brass_key', 
+        title: 'Латунный ключ с биркой', 
+        text: 'Под матрасом — маленький латунный ключ. Бирка: «Буфетная. Верхний ящик». На бирке — бурое пятно.', 
+        meaning: 'Мэри могла попасть в комнату дворецкого. Что она там искала?' 
+    },
+        evidence_butler_box: { 
+        id: 'evidence_butler_box', 
+        title: 'Шкатулка: фотография и письмо', 
+        text: 'В верхнем ящике стола — запертая шкатулка. Латунный ключ подходит. Внутри — старая фотография: молодая женщина в форме горничной, мистер Гривз (моложе, но узнаваем) и девочка лет шести. На обороте: «Мэри, 6 лет. Не показывать хозяину». Под фотографией — сложенное вчетверо письмо.', 
+        meaning: 'Мэри — дочь женщины, которая работала здесь. Дворецкий знал её с детства. И хранил это письмо много лет.', 
+        requires: 'evidence_brass_key',
+        grants: 'evidence_butler_letter_A'
+    },
+        evidence_butler_letter_A: { 
+        id: 'evidence_butler_letter_A', 
+        title: 'Письмо от А. (из шкатулки)', 
+        text: '«Мистер Гривз. Я знаю, что прошу слишком многого. Но если со мной что-то случится — приглядите за девочкой. Она не виновата. Ни в чём. Простите меня. А.»', 
+        meaning: 'Мать Мэри просила дворецкого заботиться о дочери. Дворецкий знал правду, но молчал.', 
+        requires: ['evidence_brass_key', 'evidence_butler_box']
+    },
+};
+
+// ============================================
+// ПЕРСОНАЖИ
+// ============================================
+
+const CHARACTERS = {
+    pendleton: {
+        id: 'pendleton',
+        name: 'Лорд Артур Пендлтон',
+        role: 'Аристократ, коллекционер',
+        intro: 'Детективы. Наконец-то. Мы с Илаем спорили из-за свечи — скрывать не стану. Но я джентльмен, а не отравитель',
+        questions: [
+            { q: 'Кто вы?',                                 a: 'Лорд Артур Пендлтон. Коллекционер. Коллега Илая.',    audio: 'audio/pendleton/q1.mp3',  requires: null },
+            { q: 'Где вы были в полночь?',                  a: 'В гостиной. Пил бренди. Один. Никого не видел.',                                      audio: 'audio/pendleton/q2.mp3',  requires: null },
+            { q: 'Что вы знаете о свече?',                  a: 'Древняя реликвия. Мы поссорились из-за неё пять лет назад',             audio: 'audio/pendleton/q3.mp3',  requires: null },
+            { q: 'У вас есть ключ от кабинета?',            a: 'Нет. И никогда не было',                                               audio: 'audio/pendleton/q4.mp3',  requires: null },
+            { q: 'Какой у вас размер обуви?',               a: 'Сорок третий. Какое это имеет отношение к делу, детектив?',                            audio: 'audio/pendleton/q_size.mp3',  requires: 'evidence5' },
+            { q: 'Мы нашли ключ в вашем пиджаке.',          a: 'Это... старый дубликат. Я им не пользовался. Клянусь',                              audio: 'audio/pendleton/q5.mp3',  requires: 'evidence3' },
+            { q: 'Кто-то видел вас у кабинета.',            a: 'Чёрт с вами! Я был там! Но дверь была заперта, я ушёл. Клянусь, я его не убивал!', audio: 'audio/pendleton/q6.mp3',  requires: 'evidence14' },
+            { q: 'Что вы знаете о горничной?', a: 'Мэри? Тихая девочка. Вечно запуганная. Хозяин... не очень хорошо с ней обращался. Я не вмешивался. Не моё дело. Но я видел, как она на него смотрит. Как загнанный зверь. Такие иногда кусают.', audio: 'audio/pendleton/qmari.mp3', requires: 'evidence_maid_threat' },
+            { q: 'Мы нашли второй пузырёк в вашем тайнике.',a: 'Это не моё! Кто-то подбросил его под половицу!',                        audio: 'audio/pendleton/q7.mp3',  requires: 'evidence11' },
+            { q: 'Мы нашли письмо от Ордена.',              a: 'Это... старое письмо. Они угрожали мне. Но я не убивал.',                                          audio: 'audio/pendleton/q8.mp3',  requires: 'evidence12' },
+            { q: 'На вашей манжете пятно',         a: 'Это вино. Я пролил вино. Это не яд. Вы ошибаетесь.',                                                   audio: 'audio/pendleton/q9.mp3',  requires: 'evidence13' },
+            { q: 'Вы убили его.',                           a: 'Я не убийца! Спросите Кроу! Это он вечно вился вокруг Илая',            audio: 'audio/pendleton/q10.mp3', requires: 'evidence13' },
+            { q: 'Объясните пятно и ключ. Как вы это совмещаете?', a: 'Я зашёл — он уже лежал синий! Я запаниковал, вытащил ключ у него из пальцев и запер дверь. А бокал задел, когда искал пульс на его ледяной шее!', audio: 'audio/pendleton/q_confront.mp3', requires: 'evidence13' },
+            { q: 'Кто убил хозяина?',                       a: 'Не знаю! Я трус, детектив, да. Но я видел его уже мёртвым', audio: 'audio/pendleton/q_final.mp3', requires: 'evidence13' }
+        ]
+    },
+    duval: {
+        id: 'duval',
+        name: 'Мисс Элеонора Дюваль',
+        role: 'Медиум',
+        intro: 'Духи шептали о крови в этом доме ещё до того, как погасла последняя свеча. Спрашивайте, детектив. Но ищите живых, а не мёртвых',
+        questions: [
+            { q: 'Кто вы?',                                   a: 'Элеонора Дюваль.Я медиум,говорю с теми, кого уже нет. ',                          audio: 'audio/duval/q1.mp3', requires: null },
+            { q: 'Где вы были в полночь?',                    a: 'В своей комнате. Медитировала. Слышала шаги в коридоре, но не выходила. Я не вмешиваюсь в дела живых.',       audio: 'audio/duval/q2.mp3', requires: null },
+            { q: 'У вас есть яд?',                            a: 'Это капли от головной боли. Не мешайте грешное с праведным',                        audio: 'audio/duval/q3.mp3', requires: null },
+            { q: 'Мы нашли пузырёк в вашей сумочке.',         a: 'Это аптекарская настойка. Я дарую людям покой, а не смерть',                             audio: 'audio/duval/q4.mp3', requires: 'evidence2_duval' },
+            { q: 'Вы видели что-нибудь подозрительное?',      a: 'Я видела тень у кабинета. Человек выходил и... крался. Походка боязливая. Так не ходит хозяин дома', audio: 'audio/duval/q5.mp3', requires: 'evidence2' },
+            { q: 'Вы уверены, что видели Кроу?',              a: 'Лицо было в темноте. Но тот человек точно боялся каждого скрипа', audio: 'audio/duval/q6.mp3', requires: 'evidence6' },
+            { q: 'Кто убил хозяина?',                         a: 'Не Пендлтон. Лорд не умеет красться, он идёт напролом. Это был кто-то другой', audio: 'audio/duval/q_final.mp3', requires: 'evidence_maid_note' }
+        ]
+    },
+    crow: {
+        id: 'crow',
+        name: 'Доктор Сайлас Кроу',
+        role: 'Врач хозяина особняка',
+        intro: 'Заходите, детективы. Илай Блэквуд был мёртв ещё до полуночи — я знаю этот оскал. Говорите быстрее, у меня утренний приём',
+        questions: [
+            { q: 'Кто вы?',                                   a: 'Доктор Сайлас Кроу. Врач этого несчастного семейства',                              audio: 'audio/crow/q1.mp3', requires: null },
+            { q: 'Где вы были в полночь?',                    a: 'В гостиной. Пил чай и ждал хозяина',                             audio: 'audio/crow/q2.mp3', requires: null },
+            { q: 'Какой у вас размер обуви?',                 a: 'Сорок четвертый. Почему вы спрашиваете? Впрочем, неважно. Я вижу, вы уже делаете выводы.', audio: 'audio/crow/q_size.mp3', requires: 'evidence5' },
+            { q: 'Мы нашли шприц в вашем саквояже.',          a: 'Обычное снотворное. Илай жаловался на кошмары',                          audio: 'audio/crow/q3.mp3', requires: 'evidence_shpric' },
+            { q: 'Мы нашли квитанцию. Вы купили цианид.',     a: 'Я купил его для лаборатории. Я врач, а не фармацевт из подворотни',                audio: 'audio/crow/q4.mp3', requires: 'evidence9' },
+            { q: 'Вы выходили из кабинета около полуночи?',   a: 'Да, заходил проверить его давление. Он был ещё жив.',                audio: 'audio/crow/q5.mp3', requires: 'evidence10' },
+            { q: 'Мы знаем, что это вы.',                     a: 'Я хотел лишь усыпить его! Но я не давал ему яд!',  audio: 'audio/crow/q6.mp3', requires: 'evidence9' },
+            { q: 'Вы убили его.',                             a: 'Чушь! Я бы не стал действовать так топорно!',                   audio: 'audio/crow/q7.mp3', requires: 'evidence9' },
+            { q: 'Кто убил хозяина?',                         a: 'Не знаю. Когда я вернулся позже — он уже не дышал', audio: 'audio/crow/q_final.mp3', requires: 'evidence9' }
+        ]
+    },
+    butler: {
+        id: 'butler',
+        name: 'Мистер Гривз',
+        role: 'Дворецкий',
+        intro: 'Двадцать лет я храню тайны этого дома. Но к отравлению хозяина я не причастен, детективы',
+        questions: [
+            { q: 'Кто вы?',                                   a: 'Гривз. Дворецкий.', audio: 'audio/butler/q1.mp3', requires: null },
+            { q: 'Где вы были в полночь?',                    a: 'У себя в комнате. Сверял счета', audio: 'audio/butler/q2.mp3', requires: null },
+            { q: 'Вы знаете о свече?',                        a: 'Хозяин её обожал. Но я не лезу в его дела.', audio: 'audio/butler/q3.mp3', requires: null },
+            { q: 'Вы состоите в Ордене?',                     a: 'Я простой слуга. Не нужно приписывать мне сказки', audio: 'audio/butler/q4.mp3', requires: 'evidence_butler_letter' },
+            { q: 'Мы нашли письмо от Ордена в вашей комнате.', a: 'Подделка. Кто-то хочет свалить всё на дворецкого', audio: 'audio/butler/q5.mp3', requires: 'evidence_butler_letter' },
+            { q: 'В письме говорится о женщине в Бристоле. О теле.', a: 'Это было давно! Я искупил тот грех до последнего гроша!', audio: 'audio/butler/q6.mp3', requires: 'evidence_butler_letter' },
+            { q: 'Мы можем проверить. Полиция найдёт тело.',  a: 'Чёрт с вами... Я видел, как Пендлтон выбегал из кабинета. В руке зажат ключ, на лице — паника', audio: 'audio/butler/q7.mp3', requires: 'evidence_butler_letter' },
+            { q: 'Почему вы молчали?',                        a: 'Пендлтон знал про Бристоль и угрожал мне виселицей. Но я не убивал Блэквуда', audio: 'audio/butler/q8.mp3', requires: 'evidence_pendleton_letter' },
+            { q: 'Что в этой шкатулке?', a: 'Это... моя личная вещь. Не думал, что кто-то найдёт ключ. Я хранил её для... для памяти.', audio: 'audio/butler/q9.mp3', requires: 'evidence_butler_box' },
+            { q: 'Кто такая А.?', a: 'Её мать. Работала здесь горничной. Потом... уехала. Скоропостижно. Я обещал присмотреть за девочкой. Я не смог.', audio: 'audio/butler/q10.mp3', requires: 'evidence_butler_letter_A' },
+            { q: 'Вы знали, что Мэри — дочь А.?', a: 'Знал. И видел, как хозяин смотрел на неё. Так же, как когда-то на её мать. Я должен был вмешаться. Но я этого не сделал', audio: 'audio/butler/q11.mp3', requires: 'evidence_butler_letter_A' },
+            { q: 'У вас был мотив?',                          a: 'Хозяин был тяжелым человеком, но, я служил ему верой и правдой. Зачем мне его убивать?', audio: 'audio/butler/q12.mp3', requires: null },
+            { q: 'Что вы знаете о смерти хозяина?',           a: 'Он получил то, к чему шёл. Но лорд Пендлтон — не убийца. Я видел его лицо', audio: 'audio/butler/q13.mp3', requires: null },
+            { q: 'Кто убил?',                                 a: 'Убийцы поправляют галстук и уходят. А Пендлтон дрожал как осиновый лист', audio: '', requires: 'evidence_pendleton_letter' },
+            { q: 'Вы видели, как он выходил?',                a: 'Видел. Сначала он влетел в кабинет, как разъярённый бык. Я слышал, как он кричал: "Ты пожалеешь!" Потом вышел. Бледный, как полотно. Руки трясутся. Я сразу понял — там что-то случилось.', audio: '', requires: 'evidence_pendleton_letter' },
+            { q: 'Кто был в кабинете кроме Пендлтона?',      a: 'До него из коридора кто-то тихо выскользнул. Крадучись. Это был кто-то мелкий', audio: '', requires: 'evidence_pendleton_letter' }
+        ]
+    },
+    maid: {
+        id: 'maid',
+        name: 'Мэри',
+        role: 'Горничная',
+        intro: 'Я... я боюсь. Я видела то, чего видеть не должна была. Но если я расскажу, мне не поверят. Я ведь всего лишь горничная.',
+        questions: [
+            { q: 'Кто вы?',                                   a: 'Мэри. Горничная. Работаю здесь три года.', audio: 'audio/maid/q1.mp3', requires: null },
+            { q: 'Где вы были в полночь?',                    a: 'На кухне. Мыла посуду. Потом пошла в коридор — закрыть окно.', audio: 'audio/maid/q2.mp3', requires: null },
+            { q: 'Что вы видели?',                            a: 'Тень. Кто-то выходил из кабинета хозяина. Лица не разглядела. Темно было. Но слышала, как в замке повернулся ключ.', audio: 'audio/maid/q3.mp3', requires: null },
+            { q: 'Вы можете опознать этого человека?',        a: 'Не уверена. Длинное пальто. Как у лорда Пендлтона... или у мистера Гривза.', audio: 'audio/maid/q4.mp3', requires: 'evidence_maid_note' },
+            { q: 'Где именно вы стояли?',                     a: 'В коридоре. У окна. Видела, как он выходил. Я уверена.', audio: 'audio/maid/q5.mp3', requires: 'evidence_maid_note' },
+            { q: 'Но от окна не видно двери кабинета.',       a: 'Я отошла от окна. Стояла ближе. Видела его. Это был лорд Пендлтон. Бледный. В руке что-то было. Похоже на ключ.', audio: 'audio/maid/q6.mp3', requires: 'evidence_maid_note' },
+            { q: 'Вы знаете мистера Гривза?',                 a: 'Мистер Гривз? Он... он был добр ко мне. Когда я была маленькой. Иногда приносил сладости. Но потом что-то случилось. Он стал... другим. Замкнутым. Всё время что-то прятал. Я не знала что. Боялась спрашивать.', audio: 'audio/maid/q7.mp3', requires: 'evidence_butler_letter_A' },
+            { q: 'Вы знаете о свече?',                        a: 'Хозяин был одержим ею. Говорил, исполняет желания. А по мне — приносит одни беды.', audio: 'audio/maid/q8.mp3', requires: null },
+            { q: 'Вы слышали что-нибудь?',                    a: 'Хозяин кричал на кого-то. Перед полуночью. Говорил: "Ты не получишь её, даже если я умру".', audio: 'audio/maid/q9.mp3', requires: null },
+            { q: 'Вы что-то скрываете?',                      a: 'Боюсь. Мистер Гривз велел молчать. Угрожал. Но я видела, как лорд Пендлтон выходил из кабинета. Не могу больше врать.', audio: 'audio/maid/q10.mp3', requires: 'evidence_maid_note' },
+            { q: 'Откуда у вас ключ от буфетной?', a: 'Нашла. В коридоре. Подобрала — думала, пригодится. Я не знала, что это ключ мистера Гривза.', audio: 'audio/maid/q13.mp3', requires: 'evidence_brass_key' },
+            { q: 'Что случилось с вашим фартуком?', a: 'Порвался. Зацепился за гвоздь. Я... я не помню, где именно.', audio: 'audio/maid/q15.mp3', requires: 'evidence_maid_apron' },
+            { q: 'Мы нашли обрывок тесёмки в кабинете.', a: 'Это... это не мой. Может, другой фартук. Я не была в кабинете.', audio: 'audio/maid/q14.mp3', requires: 'evidence_maid_tear' },
+            { q: 'Хозяин вам угрожал?', a: 'Он... он был жестоким человеком. Но я не убивала его. Я боялась его. Это разные вещи.', audio: '', requires: 'evidence_maid_threat' },
+            { q: 'Вы уверены, что это был Пендлтон?',         a: 'Темно было. Видела пальто. Думала, он. Но... может, и не он.', audio: 'audio/maid/q11.mp3', requires: 'evidence_maid_note' },
+            { q: 'Кто убил хозяина?',                         a: 'Я не знаю. Я только тень видела. И ключ. Больше ничего.', audio: 'audio/maid/q12.mp3', requires: 'evidence_maid_note' }
+        ]
+    },
+    inspector: {
+        id: 'inspector',
+        name: 'Инспектор Харрис',
+        role: 'Полицейский',
+        intro: 'Ну что ещё? Я занят. У меня тут дело, которое нужно закрыть до утра. Если вы по поводу убийства — я уже всё выяснил. Это доктор Кроу. Можете идти. Что? Вы всё ещё здесь? Ладно. Спрашивайте. Только быстро.',
+        questions: [
+            { q: 'Кто вы?',                                   a: 'Харрис. Инспектор. Веду это дело.', audio: 'audio/inspector/q1.mp3', requires: null },
+            { q: 'Кто убийца?',                               a: 'Доктор Кроу. Мотив есть. Цианид куплен. Последним хозяина видел. Всё сходится.', audio: 'audio/inspector/q2.mp3', requires:  ['evidence9', 'evidence_shpric'] },
+            { q: 'Вы уверены?',                               a: 'Абсолютно. Я таких дел видел десятки. Врач всегда оказывается убийцей. Классика.', audio: 'audio/inspector/q3.mp3', requires: ['evidence9', 'evidence_shpric'] },
+            { q: 'А что насчёт лорда Пендлтона?',             a: 'Пендлтон? Аристократ. Руки пачкать не станет. Алиби у него. В гостиной был.', audio: 'audio/inspector/q4.mp3', requires: null },
+            { q: 'Вы проверяли его алиби?',                   a: 'Зачем? Он же джентльмен. Джентльмены не лгут.', audio: 'audio/inspector/q5.mp3', requires: null },
+            { q: 'Что вы нашли?',                             a: 'Квитанцию на цианид у Кроу. Этого достаточно.', audio: 'audio/inspector/q6.mp3', requires: 'evidence9' },
+            { q: 'Вы слышали показания горничной?',           a: 'Горничная? Путается. Женщины не созданы для таких дел. Ничего она не видела.', audio: 'audio/inspector/q7.mp3', requires: 'evidence_maid_note' },
+            { q: 'Она сказала, что видела Пендлтона.',        a: 'Сказала, что видела тень. Тень — не доказательство. Тенью может быть кто угодно. Даже я. Ха-ха.', audio: 'audio/inspector/q8.mp3', requires: 'evidence_maid_note' },
+            { q: 'Кто убил хозяина?',                         a: 'Доктор Кроу. Дело закрыто. Арестуйте его.', audio: 'audio/inspector/q9.mp3', requires: null }
+        ]
+    }
+};
+
+// ============================================
+// АУДИО ИНТРО
+// ============================================
+
+function playTitleIntro() {
+    const audio = document.getElementById('title-intro-audio');
+    const btn = document.getElementById('title-intro-btn');
+    const player = document.getElementById('title-audio-player');
+    const bgMusic = document.getElementById('bg-music');
+
+    if (!audio) return;
+
+    if (audio.paused) {
+        if (bgMusic && !bgMusic.paused) bgMusic.volume = 0.1;
+        audio.play().catch(() => {});
+        btn.textContent = '⏸';
+        player.classList.add('playing');
+        audio.onended = () => {
+            btn.textContent = '▶';
+            player.classList.remove('playing');
+            if (bgMusic && !bgMusic.paused) bgMusic.volume = 0.3;
+        };
+    } else {
+        audio.pause();
+        btn.textContent = '▶';
+        player.classList.remove('playing');
+        if (bgMusic && !bgMusic.paused) bgMusic.volume = 0.3;
+    }
+}
+
+function goToNarrator() {
+    const titleIntro = document.getElementById('title-intro-audio');
+    if (titleIntro) titleIntro.pause();
+    const titleVideo = document.getElementById('title-video');
+    if (titleVideo) titleVideo.pause();
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) bgMusic.pause();
+    const titleMusic = document.getElementById('title-music');
+    if (titleMusic) titleMusic.pause();
+
+    showScreen('screen-narrator');
+
+    const narratorVideo = document.getElementById('narrator-video');
+    const narratorAudio = document.getElementById('narrator-audio');
+    const status = document.getElementById('narrator-status');
+    const statusText = document.getElementById('narrator-status-text');
+
+    if (narratorVideo) { narratorVideo.currentTime = 0; narratorVideo.play().catch(() => {}); }
+    if (narratorAudio) {
+        narratorAudio.currentTime = 0;
+        narratorAudio.play().catch(() => {});
+        status.classList.add('playing');
+        statusText.textContent = 'Рассказчик говорит...';
+        narratorAudio.onended = () => {
+            status.classList.remove('playing');
+            statusText.textContent = 'Рассказчик замолчал.';
+        };
+    }
+}
+
+function startGame() {
+    const narratorVideo = document.getElementById('narrator-video');
+    if (narratorVideo) narratorVideo.pause();
+    const narratorAudio = document.getElementById('narrator-audio');
+    if (narratorAudio) narratorAudio.pause();
+
+    showScreen('screen-game');
+    renderLocations();
+    renderEvidence();
+    renderCharacters();
+    renderAccusationButtons();
+    updateEvidenceCounter();
+
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) {
+        gameMusic.volume = 0.1; 
+        gameMusic.play().catch(() => {});
+    }
+}
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function showTab(tabId) {
+    if (tabId === 'locations' || tabId === 'interrogation') {
+        const stepsAudio = document.getElementById('footsteps-audio');
+        if (stepsAudio) {
+            stepsAudio.pause();
+            stepsAudio.currentTime = 0;
+            stepsAudio.volume = 0.2;
+            stepsAudio.play().catch(() => {});
+        }
+    }
+
+    if (tabId !== 'locations') {
+        const locAudio = document.getElementById('location-audio');
+        if (locAudio) locAudio.pause();
+    }
+
+    // Останавливаем аудио ответа и интро при смене таба
+    const answerAudio = document.getElementById('answer-audio');
+    if (answerAudio) { answerAudio.pause(); answerAudio.currentTime = 0; }
+    const introAudio = document.getElementById('character-intro-audio');
+    if (introAudio) { introAudio.pause(); introAudio.currentTime = 0; }
+
+    // Восстанавливаем громкость фоновой музыки
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) gameMusic.volume = 0.1;
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('tab-' + tabId).classList.remove('hidden');
+    document.querySelectorAll('.nav-btn').forEach(b => {
+        if (b.getAttribute('onclick').includes(tabId)) { b.classList.add('active'); }
+    });
+
+    if (tabId !== 'accuse') {
+        const accResult = document.getElementById('accusation-result');
+        if (accResult) accResult.classList.add('hidden');
+        const correctAudio = document.getElementById('correct-accusation-audio');
+        const wrongAudio = document.getElementById('wrong-accusation-audio');
+        if (correctAudio) correctAudio.pause();
+        if (wrongAudio) wrongAudio.pause();
+    }
+
+    if (tabId === 'interrogation' && GAME_STATE.currentCharacter) {
+        renderQuestions(GAME_STATE.currentCharacter);
+    }
+}
+
+// ============================================
+// ЛОКАЦИИ
+// ============================================
+
+function renderLocations() {
+    const container = document.getElementById('locations-list');
+    container.innerHTML = '';
+
+    LOCATIONS.forEach(loc => {
+        const media = MEDIA.locations[loc.id] || {};
+        const allFound = loc.evidence.every(e => GAME_STATE.foundEvidence.includes(e));
+        const unfoundCount = loc.evidence.filter(e => isEvidenceFindable(e)).length;
+
+        const div = document.createElement('div');
+        div.className = 'evidence-card location-card';
+
+               let previewHtml = '';
+        const imgSrc = media.previewImage || media.image; // Берем превью, если есть. Иначе старую картинку
+        if (imgSrc) {
+            previewHtml = `
+                <div class="location-preview">
+                    <img src="${imgSrc}" alt="${loc.name}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.style.display='none'">
+                    <div class="location-preview-name">${loc.name}</div>
+                </div>
+            `;
+        } else {
+            previewHtml = `
+                <div class="location-preview" style="display:flex; align-items:center; justify-content:center;">
+                    <div class="location-preview-name" style="position:static; transform:none;">${loc.name}</div>
+                </div>
+            `;
+        }
+
+        let statusHtml = '';
+        if (allFound) {
+            statusHtml = `<div class="location-status found">✓ Все улики найдены</div>`;
+        } else if (unfoundCount > 0) {
+            statusHtml = `<div class="location-status">🔍 Осталось улик: ${unfoundCount}</div>`;
+        } else {
+            statusHtml = `<div class="location-status">🔒 Нужна другая улика</div>`;
+        }
+
+        div.innerHTML = `
+            ${previewHtml}
+            <div class="evidence-title">${loc.icon} ${loc.name}</div>
+            <div class="evidence-text">${loc.description}</div>
+            ${statusHtml}
+        `;
+        div.onclick = () => exploreLocation(loc);
+        container.appendChild(div);
+    });
+}
+
+function exploreLocation(loc, isUpdate = false) {
+    if (!isUpdate) {
+        const stepsAudio = document.getElementById('footsteps-audio');
+        if (stepsAudio) {
+            stepsAudio.pause();
+            stepsAudio.currentTime = 0;
+            stepsAudio.volume = 0.2;
+            stepsAudio.play().catch(() => {});
+        }
+    }
+
+    const oldAudio = document.getElementById('location-audio');
+    if (oldAudio && !isUpdate) oldAudio.pause();
+    
+    GAME_STATE.currentLocationId = loc.id;
+
+    const container = document.getElementById('locations-list');
+    const media = MEDIA.locations[loc.id] || {};
+    const allFound = loc.evidence.every(e => GAME_STATE.foundEvidence.includes(e));
+    const unfoundCount = loc.evidence.filter(e => isEvidenceFindable(e)).length;
+
+    let mediaHtml = '';
+    if (media.video) {
+        mediaHtml = `<div class="location-media-wrapper"><video src="${media.video}" autoplay muted loop playsinline></video></div>`;
+    } else if (media.image) {
+        mediaHtml = `<div class="location-media-wrapper"><img src="${media.image}" alt="${loc.name}" onerror="this.parentElement.style.display='none'"></div>`;
+    }
+
+          let audioHtml = '';
+    if (media.audio) {
+        const isPlaying = oldAudio && !oldAudio.paused;
+        
+        // Проверяем, был ли игрок уже здесь
+        if (!GAME_STATE.playedLocationsAudio) GAME_STATE.playedLocationsAudio = [];
+        const hasBeenPlayed = GAME_STATE.playedLocationsAudio.includes(loc.id);
+        const autoplayAttr = (!isUpdate && !hasBeenPlayed) ? 'autoplay' : '';
+
+        audioHtml = `
+            <div class="audio-player ${isPlaying ? 'playing' : ''}" id="location-audio-player">
+                <button id="location-audio-btn" onclick="toggleLocationAudio()">${isPlaying ? '⏸' : '▶'}</button>
+                <span class="audio-label" id="location-audio-label">${isPlaying ? 'Атмосфера локации — играет' : 'Атмосфера локации'}</span>
+                ${isUpdate ? '' : `<audio id="location-audio" ${autoplayAttr}><source src="${media.audio}" type="audio/mpeg"></audio>`}
+            </div>
+        `;
+
+        // Запоминаем, что мы сюда зашли
+        if (!isUpdate && !hasBeenPlayed) {
+            GAME_STATE.playedLocationsAudio.push(loc.id);
+        }
+    }
+
+    let rightHtml = `<h3>${loc.icon} ${loc.name}</h3><p>${loc.description}</p>`;
+
+    if (allFound) { 
+        rightHtml += `<p style="color: #6a9a6a;">✓ Все улики в этой локации найдены.</p>`; 
+    } else { 
+        rightHtml += `<p style="color: #ff6b35;">Здесь что-то есть. Осмотритесь внимательнее.</p>`; 
+    }
+
+    if (loc.id === 'pendleton') {
+        const hasLetter = GAME_STATE.foundEvidence.includes('evidence12');
+        const hasStain = GAME_STATE.foundEvidence.includes('evidence13');
+        const hasVial = GAME_STATE.foundEvidence.includes('evidence11');
+
+        if (hasLetter && hasStain && !hasVial) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="showFloorHint()" style="border-color: #ff6b35; background: rgba(139, 0, 0, 0.1);">
+                    <div class="evidence-title" style="color: #ff6b35;">🔍 Заметить странность</div>
+                    <div class="evidence-text" style="color: #8b7355; filter: none;">В комнате что-то не так. Вы чувствуете это...</div>
+                </div>
+            `;
+        } else if (!hasVial) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="findNextEvidence('${loc.id}')">
+                    <div class="evidence-title">🔍 Осмотреть локацию</div>
+                    <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                </div>
+            `;
+        }
+    } else if (loc.id === 'butler') {
+        const hasKey = GAME_STATE.foundEvidence.includes('evidence_brass_key');
+        const hasBox = GAME_STATE.foundEvidence.includes('evidence_butler_box');
+        const unfoundNormal = ['evidence_butler_letter', 'evidence_butler_key', 'evidence_pendleton_letter']
+            .filter(e => !GAME_STATE.foundEvidence.includes(e)).length;
+
+        if (unfoundNormal > 0) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="findNextEvidence('butler')">
+                    <div class="evidence-title">🔍 Осмотреть локацию</div>
+                    <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                </div>
+            `;
+        }
+
+        if (!hasBox) {
+            if (hasKey) {
+                rightHtml += `
+                    <div class="evidence-card" onclick="openButlerBox()" style="border-color: #ff6b35; background: rgba(139, 0, 0, 0.15);">
+                        <div class="evidence-title" style="color: #ff6b35;">🔍 Открыть шкатулку</div>
+                        <div class="evidence-text" style="color: #d4c5a9; font-style: normal;">Ключ с биркой подходит к замку. Внутри что-то есть.</div>
+                    </div>
+                `;
+            } else {
+                rightHtml += `
+                    <div class="evidence-card blurred" onclick="showLockedBoxMessage()" style="border-color: #8b7355;">
+                        <div class="evidence-title" style="color: #8b7355;">🔒 Запертая шкатулка</div>
+                        <div class="evidence-text" style="color: #8b7355; filter: none;">В верхнем ящике стола — небольшая шкатулка. Заперта. Нужен ключ.</div>
+                    </div>
+                `;
+            }
+        }
+    } else if (loc.id === 'living') {
+        const unfoundAll = loc.evidence.filter(e => !GAME_STATE.foundEvidence.includes(e)).length;
+        const unfoundFindable = loc.evidence.filter(e => isEvidenceFindable(e)).length;
+
+        if (unfoundFindable > 0) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="findNextEvidence('living')">
+                    <div class="evidence-title">🔍 Осмотреть локацию</div>
+                    <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                </div>
+            `;
+        } else if (unfoundAll > 0) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="showMoreInvestigationNeeded()" style="border-color: #8b7355;">
+                    <div class="evidence-title" style="color: #8b7355;">🔍 Задержаться в комнате</div>
+                    <div class="evidence-text" style="color: #8b7355; filter: none;">Вы чувствуете, что здесь есть что-то ещё. Но пока не понимаете, что именно.</div>
+                </div>
+            `;
+        }
+    } else {
+        if (unfoundCount > 0) {
+            rightHtml += `
+                <div class="evidence-card blurred" onclick="findNextEvidence('${loc.id}')">
+                    <div class="evidence-title">🔍 Осмотреть локацию</div>
+                    <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                </div>
+            `;
+        }
+    }
+
+    const foundInThisLocation = loc.evidence
+        .filter(evId => GAME_STATE.foundEvidence.includes(evId))
+        .sort((a, b) => GAME_STATE.foundOrder.indexOf(b) - GAME_STATE.foundOrder.indexOf(a));
+
+    foundInThisLocation.forEach(evId => {
+        const ev = EVIDENCE[evId];
+        if (ev) {
+            rightHtml += `
+                <div class="evidence-card found" onclick="event.stopPropagation(); openEvidencePopup('${evId}')">
+                    <div class="evidence-title">✓ ${ev.title}</div>
+                    <div class="evidence-text">${ev.text}</div>
+                    <div class="evidence-meaning">${ev.meaning}</div>
+                    <div class="evidence-view-hint">🔍 Нажмите, чтобы рассмотреть</div>
+                </div>
+            `;
+        }
+    });
+
+    if (GAME_STATE.showFloorHint) {
+        rightHtml += `
+            <div class="evidence-card found" onclick="findEvidence('evidence11'); GAME_STATE.showFloorHint = false;" style="border-color: #ff6b35; background: rgba(60, 30, 20, 0.9);">
+                <div class="evidence-title" style="color: #ff6b35;">👁 Странная половица</div>
+                <div class="evidence-text" style="color: #d4c5a9; font-style: normal;">
+                    Вы замечаете, что одна из половиц у кровати выглядит странно. Она немного выпирает, и на ней нет пыли, в отличие от остальных. Кажется, её недавно поднимали...
+                </div>
+                <div class="evidence-view-hint" style="color: #ff6b35;">🔍 Нажмите, чтобы заглянуть под половицу</div>
+            </div>
+        `;
+    }
+
+    const html = `
+        <div style="margin-bottom: 15px;">
+            <button class="btn secondary" onclick="backToLocations()">← Назад к локациям</button>
+        </div>
+        <div class="location-content">
+            <div class="location-left">${mediaHtml}${audioHtml}</div>
+            <div class="location-right">${rightHtml}</div>
+        </div>
+    `;
+    container.innerHTML = html;
+
+    if (!isUpdate && media.audio) {
+        const newAudio = document.getElementById('location-audio');
+        const gameMusic = document.getElementById('game-music');
+        if (newAudio) {
+
+            newAudio.onended = () => {
+                const btn = document.getElementById('location-audio-btn');
+                const label = document.getElementById('location-audio-label');
+                const player = document.getElementById('location-audio-player');
+                if (btn) btn.textContent = '▶';
+                if (label) label.textContent = 'Атмосфера локации';
+                if (player) player.classList.remove('playing');
+                if (gameMusic) gameMusic.volume = 0.02; 
+            };
+            newAudio.onplay = () => {
+                const btn = document.getElementById('location-audio-btn');
+                const label = document.getElementById('location-audio-label');
+                const player = document.getElementById('location-audio-player');
+                if (btn) btn.textContent = '⏸';
+                if (label) label.textContent = 'Атмосфера локации — играет';
+                if (player) player.classList.add('playing');
+            };
+            newAudio.onpause = () => {
+                const btn = document.getElementById('location-audio-btn');
+                const label = document.getElementById('location-audio-label');
+                const player = document.getElementById('location-audio-player');
+                if (btn) btn.textContent = '▶';
+                if (label) label.textContent = 'Атмосфера локации — пауза';
+                if (player) player.classList.remove('playing');
+                if (gameMusic) gameMusic.volume = 0.1;
+            };
+        }
+    } else if (isUpdate && media.audio) {
+        const newAudio = document.getElementById('location-audio');
+        if (newAudio) {
+            newAudio.onended = () => {
+                const btn = document.getElementById('location-audio-btn');
+                const label = document.getElementById('location-audio-label');
+                const player = document.getElementById('location-audio-player');
+                if (btn) btn.textContent = '▶';
+                if (label) label.textContent = 'Атмосфера локации';
+                if (player) player.classList.remove('playing');
+                const gameMusic = document.getElementById('game-music');
+                if (gameMusic) gameMusic.volume = 0.1;
+            };
+        }
+    }
+}
+
+function showFloorHint() {
+    GAME_STATE.showFloorHint = true;
+    const loc = LOCATIONS.find(l => l.id === 'pendleton');
+    if (loc) {
+        exploreLocation(loc, true);
+        setTimeout(() => {
+            const hintCard = document.querySelector('.location-right .evidence-card.found:last-child');
+            if (hintCard) hintCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+}
+
+function closeFloorHint() {
+    GAME_STATE.showFloorHint = false;
+    const loc = LOCATIONS.find(l => l.id === 'pendleton');
+    if (loc) exploreLocation(loc, true);
+}
+
+function backToLocations() {
+    const audio = document.getElementById('location-audio');
+    if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+    }
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) gameMusic.volume = 0.1;
+
+    GAME_STATE.currentLocationId = null;
+    GAME_STATE.showFloorHint = false;
+    renderLocations();
+}
+
+function toggleLocationAudio() {
+    const audio = document.getElementById('location-audio');
+    const gameMusic = document.getElementById('game-music');
+    if (!audio) return;
+    
+    if (audio.paused) {
+        if (gameMusic) gameMusic.volume = 0.02; 
+        audio.play().catch(() => {});
+    } else {
+        audio.pause();
+        if (gameMusic) gameMusic.volume = 0.1; 
+    }
+}
+function openButlerBox() {
+    findEvidence('evidence_butler_box');
+}
+
+function showLockedBoxMessage() {
+    showNotification('🔒 Шкатулка заперта. Нужен ключ.');
+}
+function findNextEvidence(locId) {
+    const loc = LOCATIONS.find(l => l.id === locId);
+    if (!loc) return;
+    const nextEvId = loc.evidence.find(e => {
+        if (!isEvidenceFindable(e)) return false;
+        // Шкатулка и письмо из неё выдаются только через "Открыть шкатулку"
+        if (locId === 'butler' && (e === 'evidence_butler_box' || e === 'evidence_butler_letter_A')) return false;
+        return true;
+    });
+    if (nextEvId) findEvidence(nextEvId);
+}
+function showMoreInvestigationNeeded() {
+    showNotification('Вы чувствуете, что здесь есть что-то ещё. Но пока не понимаете, что именно. Нужно осмотреть другие комнаты.');
+}
+function findEvidence(evId) {
+    if (!GAME_STATE.foundEvidence.includes(evId)) {
+        GAME_STATE.foundEvidence.push(evId);
+        GAME_STATE.foundOrder.push(evId);
+
+        // Автоматически выдаём связанные улики (например, письмо из шкатулки)
+        const ev = EVIDENCE[evId];
+        if (ev && ev.grants && !GAME_STATE.foundEvidence.includes(ev.grants)) {
+            GAME_STATE.foundEvidence.push(ev.grants);
+            GAME_STATE.foundOrder.push(ev.grants);
+        }
+
+        updateEvidenceCounter();
+        renderEvidence();
+        showNotification('Улика найдена!');
+    }
+
+    if (GAME_STATE.currentLocationId) {
+        const loc = LOCATIONS.find(l => l.id === GAME_STATE.currentLocationId);
+        if (loc) {
+            const rightContainer = document.querySelector('.location-right');
+            if (rightContainer) {
+                const allFound = loc.evidence.every(e => GAME_STATE.foundEvidence.includes(e));
+                const unfoundCount = loc.evidence.filter(e => isEvidenceFindable(e)).length;
+                let rightHtml = `<h3>${loc.icon} ${loc.name}</h3><p>${loc.description}</p>`;
+
+                if (allFound) { 
+                    rightHtml += `<p style="color: #6a9a6a;">✓ Все улики в этой локации найдены.</p>`; 
+                } else { 
+                    rightHtml += `<p style="color: #ff6b35;">Здесь что-то есть. Осмотритесь внимательнее.</p>`; 
+                }
+
+                if (loc.id === 'pendleton') {
+                    const hasLetter = GAME_STATE.foundEvidence.includes('evidence12');
+                    const hasStain = GAME_STATE.foundEvidence.includes('evidence13');
+                    const hasVial = GAME_STATE.foundEvidence.includes('evidence11');
+                    if (hasLetter && hasStain && !hasVial) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="showFloorHint()" style="border-color: #ff6b35; background: rgba(139, 0, 0, 0.1);">
+                                <div class="evidence-title" style="color: #ff6b35;">🔍 Заметить странность</div>
+                                <div class="evidence-text" style="color: #8b7355; filter: none;">В комнате что-то не так. Вы чувствуете это...</div>
+                            </div>
+                        `;
+                    } else if (!hasVial) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="findNextEvidence('${loc.id}')">
+                                <div class="evidence-title">🔍 Осмотреть локацию</div>
+                                <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                            </div>
+                        `;
+                    }
+                } else if (loc.id === 'butler') {
+                    const hasKey = GAME_STATE.foundEvidence.includes('evidence_brass_key');
+                    const hasBox = GAME_STATE.foundEvidence.includes('evidence_butler_box');
+                    const unfoundNormal = ['evidence_butler_letter', 'evidence_butler_key', 'evidence_pendleton_letter']
+                        .filter(e => !GAME_STATE.foundEvidence.includes(e)).length;
+
+                    if (unfoundNormal > 0) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="findNextEvidence('butler')">
+                                <div class="evidence-title">🔍 Осмотреть локацию</div>
+                                <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                            </div>
+                        `;
+                    }
+
+                    if (!hasBox) {
+                        if (hasKey) {
+                            rightHtml += `
+                                <div class="evidence-card" onclick="openButlerBox()" style="border-color: #ff6b35; background: rgba(139, 0, 0, 0.15);">
+                                    <div class="evidence-title" style="color: #ff6b35;">🔍 Открыть шкатулку</div>
+                                    <div class="evidence-text" style="color: #d4c5a9; font-style: normal;">Ключ с биркой подходит к замку. Внутри что-то есть.</div>
+                                </div>
+                            `;
+                        } else {
+                            rightHtml += `
+                                <div class="evidence-card blurred" onclick="showLockedBoxMessage()" style="border-color: #8b7355;">
+                                    <div class="evidence-title" style="color: #8b7355;">🔒 Запертая шкатулка</div>
+                                    <div class="evidence-text" style="color: #8b7355; filter: none;">В верхнем ящике стола — небольшая шкатулка. Заперта. Нужен ключ.</div>
+                                </div>
+                            `;
+                        }
+                    }
+                } else if (loc.id === 'living') {
+                    const unfoundAll = loc.evidence.filter(e => !GAME_STATE.foundEvidence.includes(e)).length;
+                    const unfoundFindable = loc.evidence.filter(e => isEvidenceFindable(e)).length;
+
+                    if (unfoundFindable > 0) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="findNextEvidence('living')">
+                                <div class="evidence-title">🔍 Осмотреть локацию</div>
+                                <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                            </div>
+                        `;
+                    } else if (unfoundAll > 0) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="showMoreInvestigationNeeded()" style="border-color: #8b7355;">
+                                <div class="evidence-title" style="color: #8b7355;">🔍 Задержаться в комнате</div>
+                                <div class="evidence-text" style="color: #8b7355; filter: none;">Вы чувствуете, что здесь есть что-то ещё. Но пока не понимаете, что именно.</div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (unfoundCount > 0) {
+                        rightHtml += `
+                            <div class="evidence-card blurred" onclick="findNextEvidence('${loc.id}')">
+                                <div class="evidence-title">🔍 Осмотреть локацию</div>
+                                <div class="evidence-text blurred-text">Что-то здесь спрятано, но пока не видно...</div>
+                            </div>
+                        `;
+                    }
+                }
+
+                const foundInThisLocation = loc.evidence
+                    .filter(evId => GAME_STATE.foundEvidence.includes(evId))
+                    .sort((a, b) => GAME_STATE.foundOrder.indexOf(b) - GAME_STATE.foundOrder.indexOf(a));
+
+                foundInThisLocation.forEach(evId => {
+                    const ev = EVIDENCE[evId];
+                    if (ev) {
+                        rightHtml += `
+                            <div class="evidence-card found" onclick="event.stopPropagation(); openEvidencePopup('${evId}')">
+                                <div class="evidence-title">✓ ${ev.title}</div>
+                                <div class="evidence-text">${ev.text}</div>
+                                <div class="evidence-meaning">${ev.meaning}</div>
+                                <div class="evidence-view-hint">🔍 Нажмите, чтобы рассмотреть</div>
+                            </div>
+                        `;
+                    }
+                });
+
+                if (GAME_STATE.showFloorHint) {
+                    rightHtml += `
+                        <div class="evidence-card found" onclick="findEvidence('evidence11'); GAME_STATE.showFloorHint = false;" style="border-color: #ff6b35; background: rgba(60, 30, 20, 0.9);">
+                            <div class="evidence-title" style="color: #ff6b35;">👁 Странная половица</div>
+                            <div class="evidence-text" style="color: #d4c5a9; font-style: normal;">
+                                Вы замечаете, что одна из половиц у кровати выглядит странно. Она немного выпирает, и на ней нет пыли, в отличие от остальных. Кажется, её недавно поднимали...
+                            </div>
+                            <div class="evidence-view-hint" style="color: #ff6b35;">🔍 Нажмите, чтобы заглянуть под половицу</div>
+                        </div>
+                    `;
+                }
+                rightContainer.innerHTML = rightHtml;
+            }
+
+            setTimeout(() => {
+                const firstEvidence = document.querySelector('.location-right .evidence-card.found');
+                if (firstEvidence) firstEvidence.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+
+            openEvidencePopup(evId);
+            return;
+        }
+    }
+    renderLocations();
+}
+function updateEvidenceCounter() {
+    const total = Object.keys(EVIDENCE).length;
+    const found = GAME_STATE.foundEvidence.length;
+    document.getElementById('evidence-counter').textContent = `Улик найдено: ${found} / ${total}`;
+}
+
+function renderEvidence() {
+    const container = document.getElementById('evidence-list');
+    container.innerHTML = '';
+    if (GAME_STATE.foundEvidence.length === 0) {
+        container.innerHTML = '<p style="color: #8b7355;">Вы пока не нашли ни одной улики. Осмотрите локации.</p>';
+        return;
+    }
+
+    LOCATIONS.forEach(loc => {
+        const foundInLocation = loc.evidence.filter(evId => GAME_STATE.foundEvidence.includes(evId));
+        if (foundInLocation.length === 0) return;
+        foundInLocation.sort((a, b) => GAME_STATE.foundOrder.indexOf(b) - GAME_STATE.foundOrder.indexOf(a));
+
+        const folder = document.createElement('div');
+        folder.className = 'evidence-folder collapsed';
+        folder.innerHTML = `
+            <div class="evidence-folder-header">
+                <span class="folder-icon">${loc.icon}</span>
+                <span class="folder-name">${loc.name}</span>
+                <span class="folder-count">${foundInLocation.length}</span>
+            </div>
+            <div class="evidence-folder-body"></div>
+        `;
+
+        const folderBody = folder.querySelector('.evidence-folder-body');
+        foundInLocation.forEach(evId => {
+            const ev = EVIDENCE[evId];
+            if (ev) {
+                const card = document.createElement('div');
+                card.className = 'evidence-card found';
+                card.onclick = (e) => { e.stopPropagation(); openEvidencePopup(evId); };
+                card.innerHTML = `
+                    <div class="evidence-title">✓ ${ev.title}</div>
+                    <div class="evidence-text">${ev.text}</div>
+                    <div class="evidence-meaning">${ev.meaning}</div>
+                    <div class="evidence-view-hint">🔍 Нажмите, чтобы рассмотреть</div>
+                `;
+                folderBody.appendChild(card);
+            }
+        });
+        container.appendChild(folder);
+    });
+}
+
+// ============================================
+// ПЕРСОНАЖИ
+// ============================================
+
+function renderCharacters() {
+    const container = document.getElementById('characters-list');
+    container.innerHTML = '';
+    Object.values(CHARACTERS).forEach(char => {
+        const div = document.createElement('div');
+        div.className = 'character-card';
+        div.id = 'char-' + char.id;
+        div.innerHTML = `<div class="char-name">${char.name}</div><div class="char-role">${char.role}</div>`;
+        div.onclick = () => selectCharacter(char.id);
+        container.appendChild(div);
+    });
+}
+
+function selectCharacter(charId) {
+    // Останавливаем аудио ответа и интро предыдущего персонажа
+    const answerAudio = document.getElementById('answer-audio');
+    if (answerAudio) { answerAudio.pause(); answerAudio.currentTime = 0; }
+    const introAudioPrev = document.getElementById('character-intro-audio');
+    if (introAudioPrev) { introAudioPrev.pause(); introAudioPrev.currentTime = 0; }
+
+    // Восстанавливаем громкость фоновой музыки
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) gameMusic.volume = 0.1;
+
+    GAME_STATE.currentCharacter = charId;
+    document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('char-' + charId).classList.add('selected');
+
+    const char = CHARACTERS[charId];
+    const media = MEDIA.characters[charId] || {};
+    const portraitContainer = document.getElementById('character-portrait-container');
+    portraitContainer.classList.remove('hidden');
+
+    const img = document.getElementById('character-portrait-img');
+    const video = document.getElementById('character-portrait-video');
+
+    if (media.video && media.video.trim() !== '') {
+        video.style.display = 'block'; img.style.display = 'none';
+        video.src = media.video; video.play().catch(() => {});
+    } else if (media.image) {
+        img.style.display = 'block'; video.style.display = 'none';
+        img.src = media.image;
+    } else {
+        img.style.display = 'none'; video.style.display = 'none';
+    }
+
+    document.getElementById('portrait-name').textContent = char.name;
+    document.getElementById('portrait-role').textContent = char.role;
+
+    const introAudio = document.getElementById('character-intro-audio');
+    const introSource = introAudio.querySelector('source');
+    if (media.audioIntro && introSource) { introSource.src = media.audioIntro; introAudio.load(); }
+
+    const dialogueBox = document.getElementById('dialogue-box');
+    dialogueBox.classList.remove('hidden');
+    document.getElementById('dialogue-speaker').textContent = char.name;
+    document.getElementById('dialogue-line').textContent = char.intro;
+
+    document.getElementById('answer-controls').classList.add('hidden');
+    document.querySelectorAll('.question-btn').forEach(b => b.classList.remove('playing'));
+    renderQuestions(charId);
+}
+function playCharacterIntro() {
+    const audio = document.getElementById('character-intro-audio');
+    const gameMusic = document.getElementById('game-music');
+    if (!audio) return;
+
+    if (audio.paused) {
+        if (gameMusic) gameMusic.volume = 0.02;
+        audio.play().catch(() => {});
+        audio.onended = () => { if (gameMusic) gameMusic.volume = 0.1; };
+        audio.onpause = () => { if (gameMusic && !audio.ended) gameMusic.volume = 0.1; };
+        audio.onplay = () => { if (gameMusic) gameMusic.volume = 0.02; };
+    } else {
+        audio.pause();
+        if (gameMusic) gameMusic.volume = 0.1;
+    }
+}
+
+function isEvidenceLocked(requires) {
+    if (!requires) return false;
+    if (Array.isArray(requires)) {
+        return !requires.every(r => GAME_STATE.foundEvidence.includes(r));
+    }
+    return !GAME_STATE.foundEvidence.includes(requires);
+}
+
+function isEvidenceFindable(evId) {
+    if (GAME_STATE.foundEvidence.includes(evId)) return false;
+    const ev = EVIDENCE[evId];
+    if (!ev || !ev.requires) return true;
+    if (Array.isArray(ev.requires)) {
+        return ev.requires.every(r => GAME_STATE.foundEvidence.includes(r));
+    }
+    return GAME_STATE.foundEvidence.includes(ev.requires);
+}
+
+function renderQuestions(charId) {
+    const container = document.getElementById('questions-list');
+    container.innerHTML = '';
+    container.classList.remove('hidden');
+    const char = CHARACTERS[charId];
+
+    char.questions.forEach((q, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'question-btn';
+        btn.id = 'qbtn-' + charId + '-' + index;
+        const isLocked = isEvidenceLocked(q.requires);
+
+        if (isLocked) {
+            btn.classList.add('locked');
+            btn.innerHTML = `<span class="play-icon">🔒</span><span>Нужна улика</span>`;
+            btn.disabled = true;
+        } else {
+            btn.innerHTML = `<span class="play-icon">▶</span><span>${q.q}</span>`;
+            btn.onclick = () => askQuestion(charId, index, btn);
+        }
+        container.appendChild(btn);
+    });
+}
+function askQuestion(charId, questionIndex, btn) {
+    const char = CHARACTERS[charId];
+    const question = char.questions[questionIndex];
+    const gameMusic = document.getElementById('game-music');
+
+    // Останавливаем предыдущее аудио ответа и интро
+    const audio = document.getElementById('answer-audio');
+    if (audio) { audio.pause(); audio.currentTime = 0; }
+    const introAudio = document.getElementById('character-intro-audio');
+    if (introAudio) { introAudio.pause(); introAudio.currentTime = 0; }
+
+    if (gameMusic) gameMusic.volume = 0.02;
+
+    document.querySelectorAll('.question-btn').forEach(b => {
+        b.classList.remove('playing');
+        const icon = b.querySelector('.play-icon');
+        if (icon && !b.classList.contains('locked')) icon.textContent = '▶';
+    });
+
+    if (btn) {
+        btn.classList.add('playing');
+        const icon = btn.querySelector('.play-icon');
+        if (icon) icon.textContent = '⏸';
+    }
+
+    const dialogueBox = document.getElementById('dialogue-box');
+    dialogueBox.classList.remove('hidden');
+    document.getElementById('dialogue-speaker').textContent = char.name + ':';
+    document.getElementById('dialogue-line').textContent = question.a;
+
+    const controls = document.getElementById('answer-controls');
+    const progressBar = document.getElementById('audio-progress-bar');
+
+    if (question.audio) {
+        controls.classList.remove('hidden');
+        progressBar.style.width = '0%';
+        audio.src = question.audio;
+        audio.load();
+        audio.onloadedmetadata = () => { audio.play().catch(() => {}); };
+        audio.ontimeupdate = () => {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = percent + '%';
+            }
+        };
+        audio.onended = () => {
+            if (btn) { btn.classList.remove('playing'); const icon = btn.querySelector('.play-icon'); if (icon) icon.textContent = '▶'; }
+            document.getElementById('replay-icon').textContent = '▶';
+            document.getElementById('replay-text').textContent = 'Повторить';
+            progressBar.style.width = '0%';
+            if (gameMusic) gameMusic.volume = 0.1;
+        };
+        audio.onplay = () => { document.getElementById('replay-icon').textContent = '⏸'; document.getElementById('replay-text').textContent = 'Пауза'; };
+        audio.onpause = () => { if (!audio.ended) { document.getElementById('replay-icon').textContent = '▶'; document.getElementById('replay-text').textContent = 'Повторить'; } };
+    } else {
+        controls.classList.add('hidden');
+        if (gameMusic) gameMusic.volume = 0.1;
+    }
+    if (btn) btn.classList.add('asked');
+}
+
+function replayAnswer() {
+    const audio = document.getElementById('answer-audio');
+    const gameMusic = document.getElementById('game-music');
+    if (!audio.src) return;
+    
+    if (audio.paused) {
+        if (gameMusic) gameMusic.volume = 0.02; 
+        audio.play().catch(() => {});
+    } else {
+        audio.pause();
+        if (gameMusic) gameMusic.volume = 0.1; 
+    }
+}
+
+// ============================================
+// ОБВИНЕНИЕ
+// ============================================
+
+function renderAccusationButtons() {
+    const container = document.getElementById('accusation-btns');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.values(CHARACTERS).forEach(char => {
+        const btn = document.createElement('button');
+        btn.className = 'accusation-btn';
+        btn.textContent = char.name;
+        btn.onclick = () => selectAccusation(char.id, btn);
+        container.appendChild(btn);
+    });
+}
+
+function selectAccusation(charId, btn) {
+    GAME_STATE.selectedAccusation = charId;
+    document.querySelectorAll('.accusation-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('accuse-btn').disabled = false;
+}
+
+function toggleAccusationAudio(audioId, btnId, playerId, progressId) {
+    const audio = document.getElementById(audioId);
+    const btn = document.getElementById(btnId);
+    const player = document.getElementById(playerId);
+    if (!audio) return;
+    if (audio.paused) { audio.play().catch(() => {}); btn.textContent = '⏸'; player.classList.add('playing'); }
+    else { audio.pause(); btn.textContent = '▶'; player.classList.remove('playing'); }
+}
+
+function confirmAccusation() {
+    if (!GAME_STATE.selectedAccusation) return;
+    
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) gameMusic.pause();
+
+    const accused = CHARACTERS[GAME_STATE.selectedAccusation];
+    const isCorrect = GAME_STATE.selectedAccusation === 'maid';
+    const resultBox = document.getElementById('accusation-result');
+    resultBox.classList.remove('hidden');
+    const bgMusic = document.getElementById('bg-music');
+    if (bgMusic) bgMusic.pause();
+
+    if (isCorrect) {
+        resultBox.innerHTML = `
+            <div style="padding: 20px; border: 2px solid #6a9a6a; border-radius: 5px; background: rgba(106, 154, 106, 0.1);">
+                <p style="color: #6a9a6a; font-size: 1.5em; margin-bottom: 15px;">✓ Вы правы.</p>
+                <p style="color: #c4b59a; font-size: 1.1em; margin-bottom: 20px;">Мэри. Горничная. Убийца найдена.</p>
+                <button class="btn mt-20" onclick="goToFinalScreen()">Перейти к развязке →</button>
+            </div>
+        `;
+    } else {
+        GAME_STATE.wrongAttempts++;
+        resultBox.innerHTML = `
+            <div style="padding: 20px; border: 2px solid #ff4444; border-radius: 5px; background: rgba(255, 68, 68, 0.1);">
+                <p style="color: #ff4444; font-size: 1.3em; margin-bottom: 15px;">✗ Это не он.</p>
+                <p style="color: #c4b59a; margin-bottom: 15px;">Вы обвинили <strong style="color: #ff6b35;">${accused.name}</strong>, но улики не подтверждают это.</p>
+                <p style="color: #8b7355; font-style: italic; margin-top: 20px;">Вернитесь к расследованию. Найдите больше улик. Допросите подозреваемых ещё раз.</p>
+                <p style="color: #8b7355; margin-top: 15px;">Попытка: ${GAME_STATE.wrongAttempts}</p>
+            </div>
+        `;
+    }
+}
+
+// ============================================
+// ФИНАЛЬНЫЙ ЭКРАН
+// ============================================
+
+function goToFinalScreen() {
+    const correctAudio = document.getElementById('correct-accusation-audio');
+    if (correctAudio) correctAudio.pause();
+    showScreen('screen-result');
+
+    const gameMusic = document.getElementById('game-music');
+    if (gameMusic) gameMusic.pause(); 
+
+    const finalMusic = document.getElementById('final-music');
+    if (finalMusic) {
+        finalMusic.volume = 0.15; 
+        finalMusic.play().catch(() => {}); 
+    }
+
+    const finalAudio = document.getElementById('final-audio');
+    const finalBtn = document.getElementById('final-audio-btn');
+    const finalPlayer = document.getElementById('final-audio-player');
+    const finalProgress = document.getElementById('final-audio-progress-bar');
+
+          if (finalAudio) {
+        finalAudio.currentTime = 0;
+        finalAudio.play().catch((err) => { console.log(err); }); // ВОТ ОН, АВТОЗАПУСК
+        finalAudio.onplay = () => { if (finalBtn) finalBtn.textContent = '⏸'; if (finalPlayer) finalPlayer.classList.add('playing'); };
+        finalAudio.onpause = () => { if (finalBtn) finalBtn.textContent = '▶'; if (finalPlayer) finalPlayer.classList.remove('playing'); };
+        finalAudio.ontimeupdate = () => { if (finalAudio.duration && finalProgress) { const percent = (finalAudio.currentTime / finalAudio.duration) * 100; finalProgress.style.width = percent + '%'; } };
+        finalAudio.onended = () => { if (finalBtn) finalBtn.textContent = '▶'; if (finalPlayer) finalPlayer.classList.remove('playing'); if (finalProgress) finalProgress.style.width = '0%'; };
+    }
+
+    const accused = CHARACTERS['maid'];
+    const resultContent = document.getElementById('result-content');
+    resultContent.innerHTML = `
+        <p style="font-size: 1.2em; color: #d4c5a9; margin: 0 0 20px 0;">Вы обвинили: <span style="color: #ff6b35;">${accused.name}</span></p>
+        <p style="color: #8b7355; margin-bottom: 20px;">Это правильный ответ. Убийца — Мэри, горничная.</p>
+        <div style="text-align: left; padding: 20px; background: rgba(139,0,0,0.1); border: 1px solid #8b0000; border-radius: 5px;">
+            <h3 style="color: #ff6b35; margin-bottom: 15px;">Что произошло на самом деле:</h3>
+                        <p>Блэквуд её домогался. Она забеременела. Он хотел выгнать её на улицу — без денег, без рекомендаций, с ребёнком. Письмо с угрозой лежало в её комнате. Она была в отчаянии.</p>
+            <p>В ту ночь она пришла к нему — просить, умолять. Он смеялся. Она подсыпала ему в бокал то, что нашла в аптечке. «Чтобы он уснул». Он не уснул — он умер.</p>
+            <p>Потом она запаниковала. Взяла ключ из пиджака Пендлтона, заперла дверь, вернула ключ. Написала записку про «человека в пальто». Подбросила второй пузырёк в тайник Пендлтона — чтобы подозрение пало на него.</p>
+            <p>Она почти сработала. Почти.</p>
+            <p>Но обрывок тесёмки. Фартук с оборванной лентой. Письмо с угрозами. Ключ от буфетной. Фотография шестилетней девочки, которую хозяин запрещал показывать.</p>
+            <p>Ложные показания. Слёзы. Страх. Маска жертвы, под которой скрывался убийца. Никто не заподозрил горничную — слишком тихая, слишком запуганная.</p>
+            <p>Но человека больше нет. И оправдания не отменяют содеянного.</p>
+        </div>
+        <p style="color: #ff6b35; font-size: 1.1em; margin-top: 30px; font-style: italic;">
+            «Свеча останется здесь. И запомнит всех. Включая её».
+        </p>
+    `;
+}
+
+function toggleFinalAudio() {
+    const audio = document.getElementById('final-audio');
+    if (!audio) return;
+    if (audio.paused) audio.play().catch(() => {}); else audio.pause();
+}
+
+function showNotification(text) {
+    const notif = document.createElement('div');
+    notif.style.cssText = `
+        position: fixed; top: 20px; right: 20px;
+        background: linear-gradient(135deg, #8b0000, #4a0000);
+        color: #d4c5a9; padding: 15px 25px; border-radius: 5px;
+        font-family: Georgia, serif; z-index: 1000; animation: fadeIn 0.3s ease;
+        box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
+    `;
+    notif.textContent = text;
+    document.body.appendChild(notif);
+    setTimeout(() => {
+        notif.style.opacity = '0'; notif.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => notif.remove(), 500);
+    }, 2000);
+}
+
+// ============================================
+// ПОПАП УЛИКИ
+// ============================================
+
+function openEvidencePopup(evId) {
+    const ev = EVIDENCE[evId];
+    if (!ev) return;
+    const popup = document.getElementById('evidence-popup');
+    const img = document.getElementById('evidence-popup-img');
+    const title = document.getElementById('evidence-popup-title');
+    const text = document.getElementById('evidence-popup-text');
+    const meaning = document.getElementById('evidence-popup-meaning');
+
+    const evImage = (MEDIA.evidence && MEDIA.evidence[evId]) || '';
+    if (evImage) {
+        img.src = evImage;
+        img.style.display = 'block';
+        img.onerror = () => { img.style.display = 'none'; };
+    } else {
+        img.style.display = 'none';
+    }
+
+    title.textContent = ev.title;
+    text.textContent = ev.text;
+    meaning.textContent = ev.meaning;
+
+    popup.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEvidencePopup() {
+    const popup = document.getElementById('evidence-popup');
+    popup.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeEvidencePopup();
+});
+
+document.addEventListener('click', (e) => {
+    const header = e.target.closest('.evidence-folder-header');
+    if (header) {
+        const folder = header.closest('.evidence-folder');
+        if (folder) folder.classList.toggle('collapsed');
+    }
+});
+
+// ============================================
+// ЗАМЕТКИ
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const notesInput = document.getElementById('notes-input');
+    if (notesInput) {
+        const savedNotes = localStorage.getItem('detective_notes');
+        if (savedNotes) notesInput.value = savedNotes;
+        notesInput.addEventListener('input', () => {
+            localStorage.setItem('detective_notes', notesInput.value);
+        });
+    }
+});
+</script>
+
+</body>
+</html>
